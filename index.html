@@ -1,13 +1,16 @@
 <!doctype html>
 <html lang="cs">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MERCHANDISER LOG</title>
 
+  <!-- PWA (pokud používáš manifest.webmanifest, nech takhle; jinak změň na manifest.json) -->
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#4f46e5" />
+
+  <!-- Supabase JS (CDN, bez bundleru) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
@@ -127,6 +130,7 @@
       text-transform: uppercase;
     }
     .row{ display:flex; gap: 14px; }
+
     .btn{
       border:0;
       border-radius: 12px;
@@ -161,9 +165,19 @@
     .navy{ background: var(--navy); }
     .navy:active{ background: var(--navyDark); }
 
-    .divider{ height:1px; background: var(--line); margin: 14px 0; }
+    .divider{
+      height:1px;
+      background: var(--line);
+      margin: 14px 0;
+    }
 
-    .fieldRow{ display:flex; gap: 12px; align-items:center; margin-top: 6px; }
+    .fieldRow{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      margin-top: 6px;
+    }
+
     .input{
       width:100%;
       border-radius: 12px;
@@ -186,9 +200,30 @@
       font-size: 12px;
       color: #334155;
       font-weight: 900;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid #e7edf6;
+      background:#fff;
+      font-size: 12px;
+      font-weight: 900;
+      white-space:nowrap;
+    }
+    .dot{ width:8px; height:8px; border-radius:999px; background:#94a3b8; }
+    .dot.ok{ background:#22c55e; }
+    .dot.warn{ background:#f59e0b; }
+    .dot.bad{ background:#ef4444; }
 
     .activity{ margin-top: 10px; padding-bottom: 6px; }
+
     .item{
       border: 1px solid #e7edf6;
       background: #fbfdff;
@@ -196,7 +231,14 @@
       padding: 10px 12px;
       margin-top: 8px;
     }
-    .itemTop{ display:flex; justify-content:space-between; gap: 12px; align-items:flex-start; }
+
+    .itemTop{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      align-items:flex-start;
+    }
+
     .tag{
       font-weight: 900;
       font-size: 12px;
@@ -206,13 +248,31 @@
       color: var(--brandDark);
       white-space:nowrap;
     }
-    .itemTitle{ font-weight: 900; font-size: 14px; margin:0; }
-    .itemSub{ margin: 4px 0 0; color: var(--muted); font-size: 12px; font-weight: 900; }
+
+    .itemTitle{
+      font-weight: 900;
+      font-size: 14px;
+      margin:0;
+    }
+
+    .itemSub{
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: pre-wrap;
+    }
 
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .tiny{ font-size: 11px; color: var(--muted); font-weight: 900; }
 
-    .exportBar{ display:flex; gap: 10px; align-items:center; margin-top: 8px; }
+    .exportBar{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      margin-top: 8px;
+    }
+
     .month{
       width: 150px;
       min-width: 150px;
@@ -222,7 +282,7 @@
       font-weight: 900;
       font-size: 13px;
       background:#fff;
-      color:var(--text);
+      color: var(--text);
       outline:none;
     }
 
@@ -234,8 +294,10 @@
       align-items:center;
       justify-content:center;
       padding: 18px;
-      z-index: 9999;
     }
+    #modalBack{ z-index: 10000; }    /* confirm = TOP */
+    #formBack{ z-index: 9000; }      /* form = middle */
+
     .modal{
       width: min(420px, 100%);
       background:#fff;
@@ -272,7 +334,7 @@
       position: fixed; inset:0;
       background: rgba(15,23,42,.40);
       display:none;
-      z-index: 9998;
+      z-index: 8000; /* drawer = bottom overlay */
     }
     .drawer{
       position:absolute;
@@ -351,18 +413,39 @@
       text-transform: uppercase;
       letter-spacing: .8px;
     }
-    .formActions{ display:flex; gap:10px; margin-top: 12px; }
-    .smallBtn{
-      width: 100%;
-      border:0;
-      border-radius: 12px;
-      padding: 12px 12px;
-      font-weight: 1000;
-      cursor:pointer;
-      color:#fff;
-      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+
+    /* LOGIN OVERLAY */
+    .loginBack{
+      position: fixed; inset:0;
+      background: rgba(15,23,42,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 11000;
     }
-    .smallBtn:active{ transform: scale(.99); }
+    .loginCard{
+      width: min(420px, 100%);
+      background:#fff;
+      border-radius: 18px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.22);
+      overflow:hidden;
+      border: 1px solid rgba(15,23,42,.08);
+    }
+    .loginHead{
+      padding: 14px 14px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e7edf6;
+      font-weight: 1000;
+    }
+    .loginBody{ padding: 14px; }
+    .loginActions{
+      display:flex;
+      gap: 10px;
+      padding: 14px;
+      border-top: 1px solid #e7edf6;
+      background:#fff;
+    }
   </style>
 </head>
 
@@ -394,6 +477,7 @@
         </div>
 
         <div style="height:10px"></div>
+
         <div class="row">
           <button class="btn blue" id="btnStoreIn">VSTUP NA<br/>PRODEJNU</button>
           <button class="btn yellow" id="btnStoreOut">ODCHOD Z<br/>PRODEJNY</button>
@@ -407,7 +491,10 @@
         </div>
 
         <div style="height:10px"></div>
-        <div class="status" id="status">Stav: připraveno.</div>
+        <div class="status" id="status">
+          <span id="statusText">Stav: připraveno.</span>
+          <span class="badge" id="syncBadge"><span class="dot" id="syncDot"></span><span id="syncText">offline</span></span>
+        </div>
 
         <div class="divider"></div>
 
@@ -415,7 +502,7 @@
         <div class="activity" id="activity"></div>
 
         <div class="tiny">
-          Data jsou uložená jen v telefonu (localStorage). GPS funguje jen na HTTPS + s povolenou polohou.
+          Data se ukládají online na Supabase (po přihlášení). Když není signál, ukládá se do fronty a odešle se později.
         </div>
       </div>
     </div>
@@ -460,23 +547,34 @@
           <span class="chip">dny</span>
         </button>
 
+        <div class="drawerGroupTitle">Účet</div>
+        <button class="drawerBtn" id="btnAccount">
+          <span id="accountLabel">Nepřihlášen</span>
+          <span class="chip" id="accountChip">login</span>
+        </button>
+
         <div class="drawerGroupTitle">Servis</div>
+        <button class="drawerBtn" id="btnSyncNow">
+          <span>Odeslat čekající záznamy</span>
+          <span class="chip">sync</span>
+        </button>
+
         <button class="drawerBtn" id="btnClearToday">
-          <span>Vymazat dnešní záznam</span>
-          <span class="chip">opatrně</span>
+          <span>Vymazat dnešní lokální cache</span>
+          <span class="chip">bez cloudu</span>
         </button>
 
-        <button class="drawerBtn" id="btnClearAll">
-          <span>Vymazat všechna data</span>
-          <span class="chip">nukleárně</span>
+        <button class="drawerBtn" id="btnClearAllLocal">
+          <span>Vymazat veškerá lokální data</span>
+          <span class="chip">bez cloudu</span>
         </button>
 
-        <div class="tiny">Tip: po větších úpravách PWA někdy pomůže “Vymazat data webu” v Chrome.</div>
+        <div class="tiny">Tip: pokud něco zlobí po update, smaž data webu (Chrome → 🔒 → Úložiště → Vymazat data).</div>
       </div>
     </div>
   </div>
 
-  <!-- Form modal (re-uses modalBack/modal layout) -->
+  <!-- Form modal -->
   <div class="modalBack" id="formBack" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
       <div class="modalHead" id="formTitle">Formulář</div>
@@ -485,25 +583,52 @@
     </div>
   </div>
 
+  <!-- Login overlay -->
+  <div class="loginBack" id="loginBack" aria-hidden="true">
+    <div class="loginCard" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="loginHead" id="loginTitle">Přihlášení</div>
+      <div class="loginBody">
+        <div class="tiny" style="margin-bottom:10px">Přihlášení je potřeba, aby se docházka ukládala online.</div>
+
+        <div class="formRow">
+          <label class="label" for="loginEmail">Email</label>
+          <input class="input" id="loginEmail" type="email" placeholder="name@company.cz" />
+        </div>
+
+        <div class="formRow">
+          <label class="label" for="loginPass">Heslo</label>
+          <input class="input" id="loginPass" type="password" placeholder="••••••••" />
+        </div>
+
+        <div class="tiny" id="loginMsg" style="margin-top:10px;color:#ef4444;display:none;"></div>
+      </div>
+      <div class="loginActions">
+        <button class="btn green" id="btnLogin">Přihlásit</button>
+        <button class="btn gray" id="btnLoginLater">Později</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 (() => {
-  // ------------------ STORAGE MODEL ------------------
-  // v3:
-  // { days: { "YYYY-MM-DD": { sessions:[], trainings:[], sickness:[], vacationDays:[] } } }
-  //
-  // Session: { start:Point, end:Point|null, visits:Visit[] }
-  // Visit: { storeName, in:Point, out:Point|null }
-  // Training: { startTs, endTs, minutes }
-  // Sickness: { startTs, endTs, minutes }  (uložené po dnech, i když zadáš rozsah přes víc dní)
-  // vacationDays: ["YYYY-MM-DD", ...]
-const SUPABASE_URL = "TVŮJ_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "TVŮJ_SUPABASE_ANON_KEY";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const STORAGE_KEY = "merchandiser_log_v3";
+  /******************************************************************
+   * 0) SUPABASE KONFIGURACE – VYPLŇ!
+   ******************************************************************/
+  const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  /******************************************************************
+   * 1) DOM
+   ******************************************************************/
   const elNow = document.getElementById("nowText");
   const elPill = document.getElementById("modePill");
-  const elStatus = document.getElementById("status");
+
+  const elStatusText = document.getElementById("statusText");
+  const elSyncBadge = document.getElementById("syncBadge");
+  const elSyncDot = document.getElementById("syncDot");
+  const elSyncText = document.getElementById("syncText");
+
   const elActivity = document.getElementById("activity");
 
   const btnShiftStart = document.getElementById("btnShiftStart");
@@ -527,8 +652,12 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const btnTraining = document.getElementById("btnTraining");
   const btnSick = document.getElementById("btnSick");
   const btnVacation = document.getElementById("btnVacation");
+  const btnAccount = document.getElementById("btnAccount");
+  const accountLabel = document.getElementById("accountLabel");
+  const accountChip = document.getElementById("accountChip");
+  const btnSyncNow = document.getElementById("btnSyncNow");
   const btnClearToday = document.getElementById("btnClearToday");
-  const btnClearAll = document.getElementById("btnClearAll");
+  const btnClearAllLocal = document.getElementById("btnClearAllLocal");
 
   // form modal
   const formBack = document.getElementById("formBack");
@@ -536,6 +665,17 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const formBody = document.getElementById("formBody");
   const formActions = document.getElementById("formActions");
 
+  // login overlay
+  const loginBack = document.getElementById("loginBack");
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPass = document.getElementById("loginPass");
+  const loginMsg = document.getElementById("loginMsg");
+  const btnLogin = document.getElementById("btnLogin");
+  const btnLoginLater = document.getElementById("btnLoginLater");
+
+  /******************************************************************
+   * 2) HELPERS
+   ******************************************************************/
   const pad2 = (n) => String(n).padStart(2, "0");
 
   function fmtDate(ts){
@@ -548,51 +688,80 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
   function fmtDateTime(ts){ return `${fmtDate(ts)} ${fmtTime(ts)}`; }
 
-  function todayKey(){
+  function todayKey(){ return fmtDate(Date.now()); }
+
+  function minutesDiff(aTs, bTs){
+    if(aTs == null || bTs == null) return null;
+    if(bTs < aTs) return null;
+    return Math.floor((bTs - aTs) / 60000);
+  }
+  function hm(min){
+    if(min == null) return "";
+    const h = Math.floor(min/60);
+    const m = min%60;
+    return `${h} h ${pad2(m)} m`;
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+
+  function dtLocalValue(ts){
+    const d = new Date(ts);
+    const yyyy = d.getFullYear();
+    const mm = pad2(d.getMonth()+1);
+    const dd = pad2(d.getDate());
+    const hh = pad2(d.getHours());
+    const mi = pad2(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  }
+
+  function monthKeyDefault(){
     const d = new Date();
-    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  }
-
-  function load(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return { days:{} };
-      const data = JSON.parse(raw);
-      if(!data || typeof data !== "object") return { days:{} };
-      if(!data.days || typeof data.days !== "object") data.days = {};
-      return data;
-    }catch{
-      return { days:{} };
-    }
-  }
-  function save(data){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-
-  function ensureDay(data, key){
-    if(!data.days[key]) data.days[key] = { sessions:[], trainings:[], sickness:[], vacationDays:[] };
-    const d = data.days[key];
-    if(!Array.isArray(d.sessions)) d.sessions = [];
-    if(!Array.isArray(d.trainings)) d.trainings = [];
-    if(!Array.isArray(d.sickness)) d.sickness = [];
-    if(!Array.isArray(d.vacationDays)) d.vacationDays = [];
-    return d;
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
   }
 
   function setStatus(msg){
-    elStatus.textContent = "Stav: " + msg;
+    elStatusText.textContent = "Stav: " + msg;
   }
 
-  // ------------------ CONFIRM MODAL ------------------
+  function setSyncBadge({state, text}){
+    // state: ok | warn | bad
+    elSyncDot.classList.remove("ok","warn","bad");
+    if(state === "ok") elSyncDot.classList.add("ok");
+    if(state === "warn") elSyncDot.classList.add("warn");
+    if(state === "bad") elSyncDot.classList.add("bad");
+    elSyncText.textContent = text;
+  }
+
+  function lockUI(lock){
+    btnShiftStart.disabled = lock;
+    btnShiftEnd.disabled = lock;
+    btnStoreIn.disabled = lock;
+    btnStoreOut.disabled = lock;
+    btnExport.disabled = lock;
+    inpStore.disabled = lock;
+    monthPick.disabled = lock;
+  }
+
+  /******************************************************************
+   * 3) MODALS / DRAWER
+   ******************************************************************/
   function confirmAction(message){
     return new Promise((resolve) => {
       modalMsg.textContent = message;
       modalBack.style.display = "flex";
       modalBack.setAttribute("aria-hidden","false");
+      modalBack.style.zIndex = "10000"; // vždy navrch
 
       const cleanup = () => {
         modalBack.style.display = "none";
         modalBack.setAttribute("aria-hidden","true");
+        modalBack.style.zIndex = "";
         modalYes.onclick = null;
         modalNo.onclick = null;
         modalBack.onclick = null;
@@ -600,18 +769,20 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       modalYes.onclick = () => { cleanup(); resolve(true); };
       modalNo.onclick  = () => { cleanup(); resolve(false); };
-
-      modalBack.onclick = (e) => {
-        if(e.target === modalBack){
-          cleanup(); resolve(false);
-        }
-      };
+      modalBack.onclick = (e) => { if(e.target === modalBack){ cleanup(); resolve(false); } };
     });
   }
 
-  // ------------------ FORM MODAL ------------------
+  function openDrawer(){
+    drawerBack.style.display = "block";
+    drawerBack.setAttribute("aria-hidden","false");
+  }
+  function closeDrawer(){
+    drawerBack.style.display = "none";
+    drawerBack.setAttribute("aria-hidden","true");
+  }
+
   function openForm({title, bodyHtml, buttons}){
-    // buttons: [{text, cls, onClick}]
     formTitle.textContent = title;
     formBody.innerHTML = bodyHtml;
     formActions.innerHTML = "";
@@ -627,9 +798,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     formBack.style.display = "flex";
     formBack.setAttribute("aria-hidden","false");
 
-    formBack.onclick = (e) => {
-      if(e.target === formBack) closeForm();
-    };
+    formBack.onclick = (e) => { if(e.target === formBack) closeForm(); };
   }
   function closeForm(){
     formBack.style.display = "none";
@@ -638,17 +807,16 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
   function $id(id){ return document.getElementById(id); }
 
-  // ------------------ DRAWER ------------------
-  function openDrawer(){
-    drawerBack.style.display = "block";
-    drawerBack.setAttribute("aria-hidden","false");
-  }
-  function closeDrawer(){
-    drawerBack.style.display = "none";
-    drawerBack.setAttribute("aria-hidden","true");
+  function showLoginOverlay(show){
+    loginBack.style.display = show ? "flex" : "none";
+    loginBack.setAttribute("aria-hidden", show ? "false" : "true");
+    loginMsg.style.display = "none";
+    loginMsg.textContent = "";
   }
 
-  // ------------------ GEO ------------------
+  /******************************************************************
+   * 4) GEO
+   ******************************************************************/
   function getGeo(){
     return new Promise((resolve) => {
       if(!navigator.geolocation){
@@ -681,35 +849,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     };
   }
 
-  // ------------------ HELPERS ------------------
-  function minutesDiff(aTs, bTs){
-    if(aTs == null || bTs == null) return null;
-    if(bTs < aTs) return null;
-    return Math.floor((bTs - aTs) / 60000);
-  }
-  function hm(min){
-    if(min == null) return "";
-    const h = Math.floor(min/60);
-    const m = min%60;
-    return `${h} h ${pad2(m)} m`;
-  }
-
-  function activeSession(day){
-    const s = day.sessions;
-    if(!s.length) return null;
-    const last = s[s.length-1];
-    if(last && last.start && !last.end) return last;
-    return null;
-  }
-  function activeVisit(session){
-    if(!session) return null;
-    const v = session.visits || [];
-    if(!v.length) return null;
-    const last = v[v.length-1];
-    if(last && last.in && !last.out) return last;
-    return null;
-  }
-
   function gpsText(p){
     const has = (p?.lat != null && p?.lon != null);
     if(!has) return "bez GPS";
@@ -717,60 +856,300 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     return `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)} (${acc})`;
   }
 
-  function lockUI(lock){
-    btnShiftStart.disabled = lock;
-    btnShiftEnd.disabled = lock;
-    btnStoreIn.disabled = lock;
-    btnStoreOut.disabled = lock;
-    btnExport.disabled = lock;
-    inpStore.disabled = lock;
-    monthPick.disabled = lock;
+  /******************************************************************
+   * 5) AUTH (Supabase)
+   ******************************************************************/
+  async function signIn(email, password){
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if(error) throw error;
+    return data;
   }
 
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;");
+  async function signOut(){
+    const { error } = await supabase.auth.signOut();
+    if(error) throw error;
   }
 
-  function dtLocalValue(ts){
-    const d = new Date(ts);
-    const yyyy = d.getFullYear();
-    const mm = pad2(d.getMonth()+1);
-    const dd = pad2(d.getDate());
-    const hh = pad2(d.getHours());
-    const mi = pad2(d.getMinutes());
-    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  async function getUser(){
+    const { data } = await supabase.auth.getUser();
+    return data?.user || null;
   }
 
-  function splitRangeByDay(startTs, endTs){
-    // vrací { key: "YYYY-MM-DD", startTs, endTs }[]
-    const out = [];
-    let cur = startTs;
-
-    while(cur < endTs){
-      const curDate = new Date(cur);
-      const dayKey = fmtDate(cur);
-      const endOfDay = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate(), 23,59,59,999).getTime();
-      const segEnd = Math.min(endTs, endOfDay);
-      out.push({ key: dayKey, startTs: cur, endTs: segEnd });
-      cur = segEnd + 1;
+  async function ensureAuthUI(){
+    const user = await getUser();
+    if(user){
+      accountLabel.textContent = user.email || "Přihlášen";
+      accountChip.textContent = "logout";
+      showLoginOverlay(false);
+    }else{
+      accountLabel.textContent = "Nepřihlášen";
+      accountChip.textContent = "login";
+      // login overlay ukážeme jen pokud chceš striktní režim – nechávám „měkce“:
+      // showLoginOverlay(true);
     }
-    return out;
+    return user;
   }
 
-  // ------------------ CORE ACTIONS ------------------
+  /******************************************************************
+   * 6) ONLINE + OFFLINE QUEUE (Outbox)
+   ******************************************************************/
+  const OUTBOX_KEY = "merch_outbox_v1";
+  const LOCAL_CACHE_KEY = "merch_cache_events_v1"; // lokální cache eventů (pro UI/rychlost)
+  const LOCAL_CACHE_MAX = 2000; // limit eventů v cache
+
+  function outboxLoad(){
+    try{
+      const raw = localStorage.getItem(OUTBOX_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{ return []; }
+  }
+  function outboxSave(arr){
+    localStorage.setItem(OUTBOX_KEY, JSON.stringify(arr));
+  }
+
+  function cacheLoad(){
+    try{
+      const raw = localStorage.getItem(LOCAL_CACHE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{ return []; }
+  }
+  function cacheSave(arr){
+    const sliced = arr.slice(-LOCAL_CACHE_MAX);
+    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(sliced));
+  }
+
+  function uuid(){
+    return (crypto?.randomUUID ? crypto.randomUUID() : (Date.now()+"_"+Math.random().toString(16).slice(2)));
+  }
+
+  function buildEventRow({kind, ts, session_id=null, store_name=null, lat=null, lon=null, acc=null, payload={}}){
+    const iso = new Date(ts).toISOString();
+    const day = iso.slice(0,10); // YYYY-MM-DD
+    return {
+      client_event_id: uuid(),  // jen lokálně, v DB je vlastní id
+      kind,
+      ts: iso,
+      day,
+      session_id,
+      store_name,
+      lat, lon, acc,
+      payload
+    };
+  }
+
+  async function pushEventToSupabase(row){
+    const user = await getUser();
+    if(!user) throw new Error("NOT_SIGNED_IN");
+
+    const insertRow = {
+      user_id: user.id,
+      kind: row.kind,
+      ts: row.ts,
+      day: row.day,
+      session_id: row.session_id,
+      store_name: row.store_name,
+      lat: row.lat,
+      lon: row.lon,
+      acc: row.acc,
+      payload: row.payload || {}
+    };
+
+    const { error } = await supabase.from("attendance_events").insert(insertRow);
+    if(error) throw error;
+  }
+
+  async function queueAndTrySend(row){
+    // 1) vždy ulož do outboxu (aby se nic neztratilo)
+    const ob = outboxLoad();
+    ob.push(row);
+    outboxSave(ob);
+
+    // 2) ulož do lokální cache pro UI (okamžitě)
+    const cache = cacheLoad();
+    cache.push(row);
+    cacheSave(cache);
+
+    // 3) pokus se odeslat (pokud jde)
+    try{
+      await pushEventToSupabase(row);
+      // když ok → odeber z outboxu (první výskyt client_event_id)
+      const ob2 = outboxLoad().filter(x => x.client_event_id !== row.client_event_id);
+      outboxSave(ob2);
+      setSyncBadge({state:"ok", text: ob2.length ? `sync: ${ob2.length} čeká` : "sync: ok"});
+    }catch(e){
+      // zůstává v outboxu
+      const ob3 = outboxLoad();
+      setSyncBadge({state:navigator.onLine ? "warn" : "bad", text: `čeká: ${ob3.length}`});
+      throw e;
+    }
+  }
+
+  async function syncOutbox(){
+    const user = await getUser();
+    const ob = outboxLoad();
+    if(!ob.length){
+      setSyncBadge({state: navigator.onLine ? "ok" : "bad", text: navigator.onLine ? "sync: ok" : "offline"});
+      return;
+    }
+    if(!user){
+      setSyncBadge({state:"warn", text:`čeká: ${ob.length} (bez loginu)`});
+      return;
+    }
+    if(!navigator.onLine){
+      setSyncBadge({state:"bad", text:`offline (čeká: ${ob.length})`});
+      return;
+    }
+
+    // pošli postupně (jednoduché, robustní)
+    let sent = 0;
+    const remaining = [];
+    for(const row of ob){
+      try{
+        await pushEventToSupabase(row);
+        sent++;
+      }catch(e){
+        remaining.push(row);
+      }
+    }
+    outboxSave(remaining);
+    setSyncBadge({state: remaining.length ? "warn" : "ok", text: remaining.length ? `čeká: ${remaining.length}` : `sync: ok`});
+    if(sent) setStatus(`odesláno ${sent} záznamů ✅`);
+  }
+
+  /******************************************************************
+   * 7) FETCH Z CLOUDU (pro export a obnovu po smazání cache)
+   ******************************************************************/
+  async function fetchMonthEvents(year, month1to12){
+    const user = await getUser();
+    if(!user) throw new Error("NOT_SIGNED_IN");
+
+    const from = new Date(year, month1to12-1, 1, 0,0,0,0).toISOString();
+    const to = new Date(year, month1to12, 1, 0,0,0,0).toISOString();
+
+    const { data, error } = await supabase
+      .from("attendance_events")
+      .select("*")
+      .gte("ts", from)
+      .lt("ts", to)
+      .order("ts", { ascending: true });
+
+    if(error) throw error;
+    return data || [];
+  }
+
+  async function fetchTodayEvents(){
+    const user = await getUser();
+    if(!user) return []; // pro UI použijeme cache
+    const dk = todayKey();
+    const from = new Date(dk + "T00:00:00").toISOString();
+    const to = new Date(dk + "T23:59:59.999").toISOString();
+
+    const { data, error } = await supabase
+      .from("attendance_events")
+      .select("*")
+      .gte("ts", from)
+      .lte("ts", to)
+      .order("ts", { ascending: true });
+
+    if(error) throw error;
+    return data || [];
+  }
+
+  /******************************************************************
+   * 8) DOMÉNOVÁ LOGIKA (sessions/visits z eventů)
+   ******************************************************************/
+  function normalizeRow(r){
+    // r může být z cache (client_event_id) nebo z DB (id)
+    return {
+      id: r.id || r.client_event_id || uuid(),
+      kind: r.kind,
+      ts: (typeof r.ts === "string") ? r.ts : new Date(r.ts).toISOString(),
+      day: r.day || (typeof r.ts === "string" ? r.ts.slice(0,10) : fmtDate(r.ts)),
+      session_id: r.session_id || null,
+      store_name: r.store_name || null,
+      lat: (r.lat ?? r.latitude ?? null),
+      lon: (r.lon ?? r.longitude ?? null),
+      acc: (r.acc ?? r.accuracy ?? null),
+      payload: r.payload || {}
+    };
+  }
+
+  function deriveTodayStateFromEvents(rows){
+    const events = rows.map(normalizeRow).filter(r => r.day === todayKey()).sort((a,b)=>a.ts.localeCompare(b.ts));
+
+    // sessions keyed by session_id (SHIFT_START creates it)
+    const sessions = new Map();
+    const trainings = [];
+    const sickness = [];
+    let vacation = false;
+
+    for(const e of events){
+      if(e.kind === "SHIFT_START"){
+        const sid = e.session_id || uuid();
+        if(!sessions.has(sid)) sessions.set(sid, { session_id: sid, start: e, end: null, visits: [] });
+      }
+      if(e.kind === "SHIFT_END"){
+        const sid = e.session_id;
+        if(sid && sessions.has(sid)) sessions.get(sid).end = e;
+      }
+      if(e.kind === "STORE_IN"){
+        const sid = e.session_id;
+        const vid = e.payload?.visit_id || uuid();
+        const rec = { visit_id: vid, store_name: e.store_name || e.payload?.store_name || "", in: e, out: null };
+        if(sid){
+          if(!sessions.has(sid)) sessions.set(sid, { session_id: sid, start: null, end: null, visits: [] });
+          sessions.get(sid).visits.push(rec);
+        }
+      }
+      if(e.kind === "STORE_OUT"){
+        const sid = e.session_id;
+        const vid = e.payload?.visit_id;
+        if(sid && vid && sessions.has(sid)){
+          const s = sessions.get(sid);
+          // najdi poslední visit s visit_id bez out
+          const v = [...s.visits].reverse().find(x => x.visit_id === vid && !x.out);
+          if(v) v.out = e;
+        }
+      }
+      if(e.kind === "TRAINING"){
+        trainings.push(e);
+      }
+      if(e.kind === "SICK"){
+        sickness.push(e);
+      }
+      if(e.kind === "VACATION"){
+        vacation = true;
+      }
+    }
+
+    // active session = poslední s start!=null a end==null
+    const sessArr = Array.from(sessions.values()).sort((a,b)=>{
+      const ats = a.start?.ts || "";
+      const bts = b.start?.ts || "";
+      return ats.localeCompare(bts);
+    });
+
+    const activeSession = [...sessArr].reverse().find(s => s.start && !s.end) || null;
+    let activeVisit = null;
+    if(activeSession){
+      activeVisit = [...activeSession.visits].reverse().find(v => v.in && !v.out) || null;
+    }
+
+    return { events, sessions: sessArr, activeSession, activeVisit, trainings, sickness, vacation };
+  }
+
+  /******************************************************************
+   * 9) AKCE (logování)
+   ******************************************************************/
   async function startShift(){
     const ok = await confirmAction("Přejete si potvrdit příchod do práce?");
     if(!ok) return;
 
-    const data = load();
-    const day = ensureDay(data, todayKey());
-
-    const sActive = activeSession(day);
-    if(sActive){
+    // pokud už běží session dnes, nedovol
+    const st = deriveTodayStateFromEvents(cacheLoad());
+    if(st.activeSession){
       setStatus("směna už běží (nejdřív dej odchod).");
       render();
       return;
@@ -780,31 +1159,40 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     setStatus("ukládám příchod…");
 
     const p = await capturePoint();
-    day.sessions.push({ start: { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc }, end: null, visits: [] });
-    save(data);
+    const session_id = uuid();
 
-    setStatus(p.geoOk ? "příchod uložen ✅ (s GPS)" : `příchod uložen ✅ (bez GPS: ${p.geoErr})`);
-    lockUI(false);
-    render();
+    const row = buildEventRow({
+      kind: "SHIFT_START",
+      ts: p.ts,
+      session_id,
+      lat: p.lat, lon: p.lon, acc: p.acc,
+      payload: { app_version: "supabase_v1" }
+    });
+
+    try{
+      await queueAndTrySend(row);
+      setStatus(p.geoOk ? "příchod uložen ✅ (s GPS)" : `příchod uložen ✅ (bez GPS: ${p.geoErr})`);
+    }catch(e){
+      setStatus("uloženo offline do fronty ✅");
+    }finally{
+      lockUI(false);
+      render();
+    }
   }
 
   async function endShift(){
     const ok = await confirmAction("Přejete si potvrdit odchod z práce?");
     if(!ok) return;
 
-    const data = load();
-    const day = ensureDay(data, todayKey());
-    const s = activeSession(day);
-
+    const st = deriveTodayStateFromEvents(cacheLoad());
+    const s = st.activeSession;
     if(!s){
       setStatus("žádná směna neběží.");
       render();
       return;
     }
-    if(activeVisit(s)){
-      setStatus("nejdřív ukonči návštěvu prodejny.");
+    if(st.activeVisit){
       alert("Nejdřív ukonči návštěvu prodejny (odchod z prodejny).");
-      render();
       return;
     }
 
@@ -812,33 +1200,43 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     setStatus("ukládám odchod…");
 
     const p = await capturePoint();
-    s.end = { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc };
-    save(data);
 
-    const workMin = minutesDiff(s.start?.ts, s.end?.ts);
-    setStatus(p.geoOk ? `odchod uložen ✅ (celkem ${hm(workMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
-    lockUI(false);
-    render();
+    const row = buildEventRow({
+      kind: "SHIFT_END",
+      ts: p.ts,
+      session_id: s.session_id,
+      lat: p.lat, lon: p.lon, acc: p.acc,
+      payload: { app_version: "supabase_v1" }
+    });
+
+    try{
+      await queueAndTrySend(row);
+      const workMin = minutesDiff(Date.parse(s.start.ts), p.ts);
+      setStatus(p.geoOk ? `odchod uložen ✅ (celkem ${hm(workMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
+    }catch(e){
+      setStatus("uloženo offline do fronty ✅");
+    }finally{
+      lockUI(false);
+      render();
+    }
   }
 
   async function storeIn(){
-    const data = load();
-    const day = ensureDay(data, todayKey());
-    const s = activeSession(day);
-
-    if(!s){
-      alert("Nejdřív zahaj směnu (Příchod).");
-      return;
-    }
-    if(activeVisit(s)){
-      alert("Už máš aktivní návštěvu. Nejdřív dej odchod z prodejny.");
-      return;
-    }
-
     const name = (inpStore.value || "").trim();
     if(!name){
       alert("Zadej název prodejny.");
       inpStore.focus();
+      return;
+    }
+
+    const st = deriveTodayStateFromEvents(cacheLoad());
+    const s = st.activeSession;
+    if(!s){
+      alert("Nejdřív zahaj směnu (Příchod).");
+      return;
+    }
+    if(st.activeVisit){
+      alert("Už máš aktivní návštěvu. Nejdřív dej odchod z prodejny.");
       return;
     }
 
@@ -849,52 +1247,75 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     setStatus("ukládám vstup na prodejnu…");
 
     const p = await capturePoint();
-    s.visits = Array.isArray(s.visits) ? s.visits : [];
-    s.visits.push({
-      storeName: name,
-      in: { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc },
-      out: null
-    });
-    save(data);
+    const visit_id = uuid();
 
-    setStatus(p.geoOk ? "vstup uložen ✅ (s GPS)" : `vstup uložen ✅ (bez GPS: ${p.geoErr})`);
-    lockUI(false);
-    render();
+    const row = buildEventRow({
+      kind: "STORE_IN",
+      ts: p.ts,
+      session_id: s.session_id,
+      store_name: name,
+      lat: p.lat, lon: p.lon, acc: p.acc,
+      payload: { visit_id, store_name: name }
+    });
+
+    try{
+      await queueAndTrySend(row);
+      setStatus(p.geoOk ? "vstup uložen ✅ (s GPS)" : `vstup uložen ✅ (bez GPS: ${p.geoErr})`);
+    }catch(e){
+      setStatus("uloženo offline do fronty ✅");
+    }finally{
+      lockUI(false);
+      render();
+    }
   }
 
   async function storeOut(){
-    const data = load();
-    const day = ensureDay(data, todayKey());
-    const s = activeSession(day);
+    const st = deriveTodayStateFromEvents(cacheLoad());
+    const s = st.activeSession;
+    const v = st.activeVisit;
 
     if(!s){
       alert("Nejdřív zahaj směnu (Příchod).");
       return;
     }
-
-    const v = activeVisit(s);
     if(!v){
       alert("Žádná aktivní návštěva není otevřená.");
       return;
     }
 
-    const ok = await confirmAction(`Přejete si potvrdit ODCHOD z prodejny?\n\nProdejna: ${v.storeName || "(bez názvu)"}`);
+    const storeName = v.store_name || v.in.store_name || "(bez názvu)";
+    const ok = await confirmAction(`Přejete si potvrdit ODCHOD z prodejny?\n\nProdejna: ${storeName}`);
     if(!ok) return;
 
     lockUI(true);
     setStatus("ukládám odchod z prodejny…");
 
     const p = await capturePoint();
-    v.out = { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc };
-    save(data);
 
-    const vMin = minutesDiff(v.in?.ts, v.out?.ts);
-    setStatus(p.geoOk ? `odchod uložen ✅ (návštěva ${hm(vMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
-    lockUI(false);
-    render();
+    const row = buildEventRow({
+      kind: "STORE_OUT",
+      ts: p.ts,
+      session_id: s.session_id,
+      store_name: storeName,
+      lat: p.lat, lon: p.lon, acc: p.acc,
+      payload: { visit_id: v.visit_id, store_name: storeName }
+    });
+
+    try{
+      await queueAndTrySend(row);
+      const vMin = minutesDiff(Date.parse(v.in.ts), p.ts);
+      setStatus(p.geoOk ? `odchod uložen ✅ (návštěva ${hm(vMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
+    }catch(e){
+      setStatus("uloženo offline do fronty ✅");
+    }finally{
+      lockUI(false);
+      render();
+    }
   }
 
-  // ------------------ MENU FEATURES ------------------
+  /******************************************************************
+   * 10) MENU FUNKCE: školení / nemoc / dovolená
+   ******************************************************************/
   function openTrainingForm(){
     closeDrawer();
     const now = Date.now();
@@ -912,9 +1333,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
           <label class="label" for="trEnd">Do</label>
           <input class="input" type="datetime-local" id="trEnd" value="${endDefault}">
         </div>
-        <div class="tiny" style="margin-top:10px">
-          Školení se přičítá do placeného času. Pokud zasahuje přes půlnoc, automaticky se rozdělí do dní.
-        </div>
+        <div class="tiny" style="margin-top:10px">Uloží se jako placené školení (event TRAINING).</div>
       `,
       buttons: [
         { text:"Uložit", cls:"btn green", onClick: async () => {
@@ -931,17 +1350,24 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             return;
           }
 
-          const data = load();
-          const segments = splitRangeByDay(startTs, endTs);
-          for(const seg of segments){
-            const day = ensureDay(data, seg.key);
-            const mins = minutesDiff(seg.startTs, seg.endTs);
-            day.trainings.push({ startTs: seg.startTs, endTs: seg.endTs, minutes: mins ?? 0 });
+          const minutes = minutesDiff(startTs, endTs) ?? 0;
+          const row = buildEventRow({
+            kind: "TRAINING",
+            ts: startTs,
+            payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
+          });
+
+          lockUI(true);
+          try{
+            await queueAndTrySend(row);
+            setStatus("školení uloženo ✅");
+          }catch{
+            setStatus("školení uloženo offline do fronty ✅");
+          }finally{
+            lockUI(false);
+            closeForm();
+            render();
           }
-          save(data);
-          closeForm();
-          setStatus("školení uloženo ✅");
-          render();
         }},
         { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
       ]
@@ -965,9 +1391,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
           <label class="label" for="siEnd">Do</label>
           <input class="input" type="datetime-local" id="siEnd" value="${endDefault}">
         </div>
-        <div class="tiny" style="margin-top:10px">
-          Nemoc se NEpřičítá do odměny. Rozsah přes více dní se automaticky rozdělí.
-        </div>
+        <div class="tiny" style="margin-top:10px">Uloží se jako event SICK (neplacené). </div>
       `,
       buttons: [
         { text:"Uložit", cls:"btn green", onClick: async () => {
@@ -984,17 +1408,24 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             return;
           }
 
-          const data = load();
-          const segments = splitRangeByDay(startTs, endTs);
-          for(const seg of segments){
-            const day = ensureDay(data, seg.key);
-            const mins = minutesDiff(seg.startTs, seg.endTs);
-            day.sickness.push({ startTs: seg.startTs, endTs: seg.endTs, minutes: mins ?? 0 });
+          const minutes = minutesDiff(startTs, endTs) ?? 0;
+          const row = buildEventRow({
+            kind: "SICK",
+            ts: startTs,
+            payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
+          });
+
+          lockUI(true);
+          try{
+            await queueAndTrySend(row);
+            setStatus("nemoc uložena ✅");
+          }catch{
+            setStatus("nemoc uložena offline do fronty ✅");
+          }finally{
+            lockUI(false);
+            closeForm();
+            render();
           }
-          save(data);
-          closeForm();
-          setStatus("nemoc uložena ✅");
-          render();
         }},
         { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
       ]
@@ -1003,128 +1434,53 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   function openVacationForm(){
     closeDrawer();
-    const today = todayKey();
-
-    const data = load();
-    const day = ensureDay(data, today);
-    const current = new Set(day.vacationDays || []);
+    const dk = todayKey();
 
     openForm({
       title: "Dovolená",
       bodyHtml: `
         <div class="formRow">
           <label class="label" for="vacDay">Vyber den</label>
-          <input class="input" type="date" id="vacDay" value="${today}">
+          <input class="input" type="date" id="vacDay" value="${dk}">
         </div>
-
-        <div class="formRow">
-          <button class="smallBtn green" id="vacAdd">Přidat den dovolené</button>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="label">Dny dovolené (uložené)</div>
-        <div id="vacList" class="tiny"></div>
-
         <div class="tiny" style="margin-top:10px">
-          Dovolená se v exportu počítá jako 8 hodin placeného času za den.
+          Přidá se event VACATION pro vybraný den (počítej 8 hodin v reportu).
         </div>
       `,
       buttons: [
-        { text:"Hotovo", cls:"btn navy", onClick: async () => { closeForm(); render(); } }
+        { text:"Přidat", cls:"btn green", onClick: async () => {
+          const day = $id("vacDay").value;
+          if(!day){ alert("Vyber den."); return; }
+          const ok = await confirmAction(`Přidat dovolenou pro den ${day}?`);
+          if(!ok) return;
+
+          const ts = Date.parse(day + "T00:00:00");
+          const row = buildEventRow({
+            kind: "VACATION",
+            ts,
+            payload: { day, minutes: 480 }
+          });
+
+          lockUI(true);
+          try{
+            await queueAndTrySend(row);
+            setStatus("dovolená uložena ✅");
+          }catch{
+            setStatus("dovolená uložena offline do fronty ✅");
+          }finally{
+            lockUI(false);
+            closeForm();
+            render();
+          }
+        }},
+        { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
       ]
     });
-
-    const renderVacList = () => {
-      const listEl = $id("vacList");
-      const arr = Array.from(current).sort((a,b)=>a.localeCompare(b));
-      if(!arr.length){
-        listEl.innerHTML = "Zatím žádné dny dovolené.";
-        return;
-      }
-      listEl.innerHTML = arr.map(d => `
-        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid #e7edf6;background:#fbfdff;border-radius:12px;padding:10px 12px;margin-top:8px;">
-          <span class="mono">${escapeHtml(d)}</span>
-          <button data-day="${escapeHtml(d)}" style="border:0;border-radius:10px;padding:8px 10px;font-weight:1000;cursor:pointer;background:#fee2e2;color:#991b1b;">
-            Odebrat
-          </button>
-        </div>
-      `).join("");
-
-      listEl.querySelectorAll("button[data-day]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const d = btn.getAttribute("data-day");
-          const ok = await confirmAction(`Odebrat dovolenou pro den ${d}?`);
-          if(!ok) return;
-          current.delete(d);
-          persistVacation(current);
-          renderVacList();
-          setStatus("dovolená upravena ✅");
-        });
-      });
-    };
-
-    const persistVacation = (setDays) => {
-      const data2 = load();
-      // ukládáme "globálně" přes days (nejjednodušší): každý den si nese vlastní vacationDays seznam
-      // => aby to bylo konzistentní, uložíme seznam do dneška jako "master"
-      const master = ensureDay(data2, todayKey());
-      master.vacationDays = Array.from(setDays);
-
-      // a zároveň rozkopírujeme flag do jednotlivých dní (aby export byl rychlý a přímočarý)
-      // (v praxi stačí master + kontrola v exportu, ale takhle to máš stabilní i po ručních editacích)
-      const all = Array.from(setDays);
-      for(const dk of all){
-        const drec = ensureDay(data2, dk);
-        // keep only itself as marker
-        drec.vacationDays = [dk];
-      }
-      save(data2);
-    };
-
-    $id("vacAdd").addEventListener("click", async (e) => {
-      e.preventDefault();
-      const dk = $id("vacDay").value;
-      if(!dk) return;
-      const ok = await confirmAction(`Přidat dovolenou pro den ${dk}?`);
-      if(!ok) return;
-      current.add(dk);
-      persistVacation(current);
-      renderVacList();
-      setStatus("dovolená uložena ✅");
-    });
-
-    renderVacList();
   }
 
-  async function clearToday(){
-    closeDrawer();
-    const ok = await confirmAction("Opravdu vymazat dnešní záznam? (směny, prodejny, školení, nemoc, dovolená pro dnešek)");
-    if(!ok) return;
-
-    const data = load();
-    const k = todayKey();
-    delete data.days[k];
-    save(data);
-    setStatus("dnešek vymazán 🧼");
-    render();
-  }
-
-  async function clearAll(){
-    closeDrawer();
-    const ok = await confirmAction("Opravdu vymazat VŠECHNA data v telefonu? (nenávratně)");
-    if(!ok) return;
-    localStorage.removeItem(STORAGE_KEY);
-    setStatus("všechna data vymazána 🧼");
-    render();
-  }
-
-  // ------------------ EXPORT CSV ------------------
-  function monthRange(y, m){
-    const from = new Date(y, m-1, 1, 0,0,0,0).getTime();
-    const to = new Date(y, m, 0, 23,59,59,999).getTime();
-    return { from, to };
-  }
+  /******************************************************************
+   * 11) EXPORT (CSV) – čte z CLOUDU, pokud je login; jinak z cache
+   ******************************************************************/
   function parseMonthValue(v){
     if(!v) return null;
     const [y,m] = v.split("-").map(Number);
@@ -1138,183 +1494,122 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     return needs ? `"${v}"` : v;
   }
 
-  function exportCsv(){
-    const data = load();
+  function groupByDay(rows){
+    const by = new Map();
+    rows.forEach(r => {
+      const e = normalizeRow(r);
+      const day = e.day;
+      if(!by.has(day)) by.set(day, []);
+      by.get(day).push(e);
+    });
+    for(const arr of by.values()){
+      arr.sort((a,b)=>a.ts.localeCompare(b.ts));
+    }
+    return by;
+  }
+
+  function computeDayTotals(dayRows){
+    // work minutes = sum of closed sessions
+    const sessions = new Map();
+    let trainingMin = 0;
+    let sickMin = 0;
+    let vacationMin = 0;
+    let visits = 0;
+
+    for(const e of dayRows){
+      if(e.kind === "SHIFT_START"){
+        const sid = e.session_id;
+        if(sid && !sessions.has(sid)) sessions.set(sid, { start: e, end: null });
+      }
+      if(e.kind === "SHIFT_END"){
+        const sid = e.session_id;
+        if(sid){
+          if(!sessions.has(sid)) sessions.set(sid, { start: null, end: e });
+          else sessions.get(sid).end = e;
+        }
+      }
+      if(e.kind === "STORE_IN") visits++;
+      if(e.kind === "TRAINING") trainingMin += (e.payload?.minutes ?? 0);
+      if(e.kind === "SICK") sickMin += (e.payload?.minutes ?? 0);
+      if(e.kind === "VACATION") vacationMin = 480;
+    }
+
+    let workMin = 0;
+    for(const s of sessions.values()){
+      if(s.start && s.end){
+        const m = minutesDiff(Date.parse(s.start.ts), Date.parse(s.end.ts));
+        if(m != null) workMin += m;
+      }
+    }
+
+    const paidMin = workMin + trainingMin + vacationMin;
+    return { workMin, trainingMin, sickMin, vacationMin, paidMin, visits };
+  }
+
+  async function exportCsv(){
     const sel = parseMonthValue(monthPick.value);
-    if(!sel){
-      alert("Vyber měsíc pro export.");
+    if(!sel){ alert("Vyber měsíc pro export."); return; }
+
+    lockUI(true);
+    setStatus("připravuju export…");
+
+    let rows = [];
+    try{
+      const user = await getUser();
+      if(user){
+        rows = await fetchMonthEvents(sel.y, sel.m);
+      }else{
+        // fallback: z cache vezmi jen vybraný měsíc
+        const all = cacheLoad().map(normalizeRow);
+        rows = all.filter(r => {
+          const d = new Date(r.ts);
+          return d.getFullYear() === sel.y && (d.getMonth()+1) === sel.m;
+        });
+      }
+    }catch(e){
+      alert("Export selhal: " + (e?.message || e));
+      lockUI(false);
       return;
     }
 
+    const byDay = groupByDay(rows);
     const sep = ",";
-    const { from, to } = monthRange(sel.y, sel.m);
-
-    const dayKeys = Object.keys(data.days || {})
-      .filter(k => {
-        const [yy,mm,dd] = k.split("-").map(Number);
-        if(!yy || !mm || !dd) return false;
-        const ts = new Date(yy, mm-1, dd, 12,0,0,0).getTime();
-        return ts >= from && ts <= to;
-      })
-      .sort((a,b) => a.localeCompare(b));
-
     const head = [
-      "row_type",
-      "date",
-
-      "work_minutes",
-      "training_minutes",
-      "vacation_minutes",
-      "sick_minutes",
-      "paid_minutes",
-
-      "day_visit_count",
-
-      "session_index",
-      "session_start",
-      "session_end",
-      "session_work_minutes",
-
-      "visit_index",
-      "store_name",
-      "store_in",
-      "store_out",
-      "visit_minutes",
-
-      "event_start",
-      "event_end",
-      "event_minutes"
+      "row_type","date",
+      "work_minutes","training_minutes","vacation_minutes","sick_minutes","paid_minutes",
+      "visit_count",
+      "kind","ts","session_id","store_name",
+      "lat","lon","acc",
+      "payload_json"
     ];
+    const lines = [head.join(sep)];
 
-    const lines = [];
-    lines.push(head.join(sep));
+    const days = Array.from(byDay.keys()).sort((a,b)=>a.localeCompare(b));
+    for(const day of days){
+      const dayRows = byDay.get(day);
+      const t = computeDayTotals(dayRows);
 
-    for(const dk of dayKeys){
-      const day = ensureDay(data, dk);
-      const sessions = Array.isArray(day.sessions) ? day.sessions : [];
-
-      let workMin = 0;
-      let visitCount = 0;
-
-      for(const s of sessions){
-        const vList = Array.isArray(s.visits) ? s.visits : [];
-        visitCount += vList.length;
-
-        if(s.start?.ts && s.end?.ts){
-          const wm = minutesDiff(s.start.ts, s.end.ts);
-          if(wm != null) workMin += wm;
-        }
-      }
-
-      const trainingMin = (day.trainings || []).reduce((a,x)=>a+(x.minutes||0),0);
-      const sickMin = (day.sickness || []).reduce((a,x)=>a+(x.minutes||0),0);
-      const vacationMin = (day.vacationDays && day.vacationDays.includes(dk)) ? 480 : 0; // 8h
-      const paidMin = workMin + trainingMin + vacationMin;
-
-      // DAY_TOTAL row
+      // DAY_TOTAL
       lines.push([
-        "DAY_TOTAL",
-        dk,
-
-        workMin || "",
-        trainingMin || "",
-        vacationMin || "",
-        sickMin || "",
-        paidMin || "",
-
-        visitCount,
-
-        "",
-        "",
-        "",
-        "",
-
-        "",
-        "",
-        "",
-        "",
-        "",
-
-        "",
-        "",
+        "DAY_TOTAL", day,
+        t.workMin, t.trainingMin, t.vacationMin, t.sickMin, t.paidMin,
+        t.visits,
+        "", "", "", "",
+        "", "", "",
         ""
-      ].map(x => csvEscape(x, sep)).join(sep));
+      ].map(x=>csvEscape(x, sep)).join(sep));
 
-      // event rows
-      (day.trainings || []).forEach((t) => {
+      // EVENTS
+      for(const e of dayRows){
         lines.push([
-          "TRAINING", dk,
+          "EVENT", day,
           "", "", "", "", "",
           "",
-          "", "", "", "",
-          "", "", "", "", "",
-          fmtDateTime(t.startTs), fmtDateTime(t.endTs), t.minutes ?? ""
-        ].map(x => csvEscape(x, sep)).join(sep));
-      });
-
-      (day.sickness || []).forEach((s) => {
-        lines.push([
-          "SICK", dk,
-          "", "", "", "", "",
-          "",
-          "", "", "", "",
-          "", "", "", "", "",
-          fmtDateTime(s.startTs), fmtDateTime(s.endTs), s.minutes ?? ""
-        ].map(x => csvEscape(x, sep)).join(sep));
-      });
-
-      if(vacationMin){
-        lines.push([
-          "VACATION", dk,
-          "", "", "", "", "",
-          "",
-          "", "", "", "",
-          "", "", "", "", "",
-          `${dk} 00:00:00`, `${dk} 23:59:59`, 480
-        ].map(x => csvEscape(x, sep)).join(sep));
+          e.kind, e.ts, e.session_id || "", e.store_name || "",
+          e.lat ?? "", e.lon ?? "", e.acc ?? "",
+          JSON.stringify(e.payload || {})
+        ].map(x=>csvEscape(x, sep)).join(sep));
       }
-
-      // session + visit rows
-      sessions.forEach((s, si) => {
-        const sStartTs = s.start?.ts ?? null;
-        const sEndTs = s.end?.ts ?? null;
-        const sWorkMin = (sStartTs && sEndTs) ? minutesDiff(sStartTs, sEndTs) : null;
-
-        lines.push([
-          "SESSION", dk,
-          "", "", "", "", "",
-          "",
-          (si+1),
-          sStartTs ? fmtDateTime(sStartTs) : "",
-          sEndTs ? fmtDateTime(sEndTs) : "",
-          sWorkMin ?? "",
-          "", "", "", "", "",
-          "", "", ""
-        ].map(x => csvEscape(x, sep)).join(sep));
-
-        const vList = Array.isArray(s.visits) ? s.visits : [];
-        vList.forEach((v, vi) => {
-          const vInTs = v?.in?.ts ?? null;
-          const vOutTs = v?.out?.ts ?? null;
-          const vMin = (vInTs && vOutTs) ? minutesDiff(vInTs, vOutTs) : null;
-
-          lines.push([
-            "VISIT", dk,
-            "", "", "", "", "",
-            "",
-            (si+1),
-            sStartTs ? fmtDateTime(sStartTs) : "",
-            sEndTs ? fmtDateTime(sEndTs) : "",
-            sWorkMin ?? "",
-            (vi+1),
-            v?.storeName ?? "",
-            vInTs ? fmtDateTime(vInTs) : "",
-            vOutTs ? fmtDateTime(vOutTs) : "",
-            vMin ?? "",
-            "", "", ""
-          ].map(x => csvEscape(x, sep)).join(sep));
-        });
-      });
     }
 
     const csv = "\uFEFF" + lines.join("\n"); // BOM pro Excel
@@ -1330,10 +1625,13 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     a.remove();
     URL.revokeObjectURL(url);
 
+    lockUI(false);
     setStatus("export hotovej ✅");
   }
 
-  // ------------------ RENDER ------------------
+  /******************************************************************
+   * 12) RENDER
+   ******************************************************************/
   function updateNow(){
     const d = new Date();
     elNow.textContent = `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}  ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
@@ -1342,89 +1640,93 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   function render(){
     updateNow();
 
-    const data = load();
-    const day = ensureDay(data, todayKey());
+    // sync badge
+    const ob = outboxLoad();
+    if(!navigator.onLine){
+      setSyncBadge({state:"bad", text: `offline (čeká: ${ob.length})`});
+    }else{
+      setSyncBadge({state: ob.length ? "warn" : "ok", text: ob.length ? `čeká: ${ob.length}` : "sync: ok"});
+    }
 
-    const s = activeSession(day);
-    const v = activeVisit(s);
+    // derive today state from local cache (rychlé)
+    const st = deriveTodayStateFromEvents(cacheLoad());
 
-    if(!s) elPill.textContent = "MIMO PRACOVNÍ DOBU";
-    else if(s && v) elPill.textContent = "NA PRODEJNĚ";
+    if(!st.activeSession) elPill.textContent = "MIMO PRACOVNÍ DOBU";
+    else if(st.activeSession && st.activeVisit) elPill.textContent = "NA PRODEJNĚ";
     else elPill.textContent = "VE SMĚNĚ";
 
-    // requested behavior:
-    btnShiftStart.disabled = !!s;
-    btnShiftEnd.disabled = !s;
+    // requested button behavior:
+    btnShiftStart.disabled = !!st.activeSession;
+    btnShiftEnd.disabled = !st.activeSession;
 
-    btnStoreIn.disabled = !s || !!v;
-    btnStoreOut.disabled = !s || !v;
+    btnStoreIn.disabled = !st.activeSession || !!st.activeVisit;
+    btnStoreOut.disabled = !st.activeSession || !st.activeVisit;
 
-    // todays activity: sessions + visits + training/sick/vac
+    // month default
+    if(!monthPick.value) monthPick.value = monthKeyDefault();
+
+    // activity list
     const items = [];
-    const sessions = Array.isArray(day.sessions) ? day.sessions : [];
 
-    sessions.forEach((sess, i) => {
-      items.push({
-        tag: `SMĚNA #${i+1}`,
-        title: "Příchod",
-        sub: `${sess.start?.ts ? fmtDateTime(sess.start.ts) : "—"} • GPS: ${gpsText(sess.start)}`
-      });
-
-      const vList = Array.isArray(sess.visits) ? sess.visits : [];
-      vList.forEach((vv, j) => {
-        const inTs = vv?.in?.ts;
-        const outTs = vv?.out?.ts;
-        const dur = (inTs && outTs) ? hm(minutesDiff(inTs, outTs)) : (inTs ? "probíhá…" : "");
+    // sessions + visits
+    for(let i=0; i<st.sessions.length; i++){
+      const s = st.sessions[i];
+      if(s.start){
         items.push({
-          tag: `PRODEJNA ${i+1}.${j+1}`,
-          title: vv?.storeName || "(bez názvu)",
-          sub: `${inTs ? fmtDateTime(inTs) : "—"} → ${outTs ? fmtDateTime(outTs) : "—"} • ${dur}`
-        });
-      });
-
-      if(sess.end?.ts){
-        const w = minutesDiff(sess.start?.ts, sess.end.ts);
-        items.push({
-          tag: `SMĚNA #${i+1}`,
-          title: "Odchod",
-          sub: `${fmtDateTime(sess.end.ts)} • Celkem: ${hm(w)}`
-        });
-      } else {
-        items.push({
-          tag: `SMĚNA #${i+1}`,
-          title: "Běží…",
-          sub: "Směna není uzavřená (čeká na Odchod)."
+          tag:`SMĚNA #${i+1}`,
+          title:"Příchod",
+          sub:`${fmtDateTime(Date.parse(s.start.ts))} • GPS: ${gpsText(s.start)}`
         });
       }
-    });
+      for(let j=0; j<s.visits.length; j++){
+        const v = s.visits[j];
+        const inTs = Date.parse(v.in.ts);
+        const outTs = v.out ? Date.parse(v.out.ts) : null;
+        const dur = outTs ? hm(minutesDiff(inTs, outTs)) : "probíhá…";
+        items.push({
+          tag:`PRODEJNA ${i+1}.${j+1}`,
+          title: v.store_name || "(bez názvu)",
+          sub:`${fmtDateTime(inTs)} → ${outTs ? fmtDateTime(outTs) : "—"} • ${dur}`
+        });
+      }
+      if(s.end){
+        const w = minutesDiff(Date.parse(s.start.ts), Date.parse(s.end.ts));
+        items.push({
+          tag:`SMĚNA #${i+1}`,
+          title:"Odchod",
+          sub:`${fmtDateTime(Date.parse(s.end.ts))} • Celkem: ${hm(w)}`
+        });
+      }else if(s.start){
+        items.push({
+          tag:`SMĚNA #${i+1}`,
+          title:"Běží…",
+          sub:"Směna není uzavřená (čeká na Odchod)."
+        });
+      }
+    }
 
-    (day.trainings || []).forEach((t, i) => {
+    // training/sick/vacation for today
+    for(const e of st.trainings){
       items.push({
-        tag: `ŠKOLENÍ #${i+1}`,
-        title: "Školení (placené)",
-        sub: `${fmtDateTime(t.startTs)} → ${fmtDateTime(t.endTs)} • ${hm(t.minutes)}`
+        tag:"ŠKOLENÍ",
+        title:"Školení (placené)",
+        sub:`${e.payload?.start_ts || e.ts} → ${e.payload?.end_ts || ""} • ${hm(e.payload?.minutes || 0)}`
       });
-    });
-
-    (day.sickness || []).forEach((sick, i) => {
+    }
+    for(const e of st.sickness){
       items.push({
-        tag: `NEMOC #${i+1}`,
-        title: "Nemoc (neplacená)",
-        sub: `${fmtDateTime(sick.startTs)} → ${fmtDateTime(sick.endTs)} • ${hm(sick.minutes)}`
+        tag:"NEMOC",
+        title:"Nemoc (neplacená)",
+        sub:`${e.payload?.start_ts || e.ts} → ${e.payload?.end_ts || ""} • ${hm(e.payload?.minutes || 0)}`
       });
-    });
-
-    if(day.vacationDays && day.vacationDays.includes(todayKey())){
-      items.push({
-        tag: "DOVOLENÁ",
-        title: "Dovolená",
-        sub: "Celý den (8 hodin placených)"
-      });
+    }
+    if(st.vacation){
+      items.push({ tag:"DOVOLENÁ", title:"Dovolená", sub:"Celý den (8 hodin)" });
     }
 
     if(!items.length){
       elActivity.innerHTML = `<div class="tiny">Zatím nic. Klikni na PŘÍCHOD.</div>`;
-    } else {
+    }else{
       elActivity.innerHTML = items.map(it => `
         <div class="item">
           <div class="itemTop">
@@ -1437,15 +1739,85 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         </div>
       `).join("");
     }
-
-    // month default
-    if(!monthPick.value){
-      const n = new Date();
-      monthPick.value = `${n.getFullYear()}-${pad2(n.getMonth()+1)}`;
-    }
   }
 
-  // ------------------ WIRE ------------------
+  /******************************************************************
+   * 13) MENU / SERVIS AKCE
+   ******************************************************************/
+  async function handleAccountClick(){
+    closeDrawer();
+    const user = await getUser();
+    if(user){
+      const ok = await confirmAction("Odhlásit se?");
+      if(!ok) return;
+      await signOut();
+      await ensureAuthUI();
+      setStatus("odhlášeno");
+      render();
+      return;
+    }
+    showLoginOverlay(true);
+  }
+
+  async function clearTodayLocal(){
+    closeDrawer();
+    const ok = await confirmAction("Vymazat dnešní lokální cache? (cloud data zůstávají)");
+    if(!ok) return;
+    const dk = todayKey();
+    const cache = cacheLoad().map(normalizeRow).filter(r => r.day !== dk);
+    cacheSave(cache);
+    // outbox dneška taky smažeme (jen lokálně) – opatrně: může to zahodit neodeslané!
+    const ob = outboxLoad().filter(r => (normalizeRow(r).day !== dk));
+    outboxSave(ob);
+    setStatus("dnešek vymazán lokálně 🧼");
+    render();
+  }
+
+  async function clearAllLocal(){
+    closeDrawer();
+    const ok = await confirmAction("Vymazat veškerá lokální data? (cloud data zůstávají)");
+    if(!ok) return;
+    localStorage.removeItem(LOCAL_CACHE_KEY);
+    localStorage.removeItem(OUTBOX_KEY);
+    setStatus("lokální data vymazána 🧼");
+    render();
+  }
+
+  /******************************************************************
+   * 14) LOGIN HANDLERS
+   ******************************************************************/
+  btnLogin.addEventListener("click", async () => {
+    loginMsg.style.display = "none";
+    const email = (loginEmail.value || "").trim();
+    const pass = (loginPass.value || "").trim();
+    if(!email || !pass){
+      loginMsg.textContent = "Zadej email a heslo.";
+      loginMsg.style.display = "block";
+      return;
+    }
+    btnLogin.disabled = true;
+    try{
+      await signIn(email, pass);
+      await ensureAuthUI();
+      showLoginOverlay(false);
+      setStatus("přihlášeno ✅");
+      await syncOutbox();
+    }catch(e){
+      loginMsg.textContent = "Přihlášení selhalo: " + (e?.message || e);
+      loginMsg.style.display = "block";
+    }finally{
+      btnLogin.disabled = false;
+      render();
+    }
+  });
+
+  btnLoginLater.addEventListener("click", () => {
+    showLoginOverlay(false);
+  });
+
+  /******************************************************************
+   * 15) WIRE-UP
+   ******************************************************************/
   btnShiftStart.addEventListener("click", startShift);
   btnShiftEnd.addEventListener("click", endShift);
   btnStoreIn.addEventListener("click", storeIn);
@@ -1460,30 +1832,75 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   btnSick.addEventListener("click", openSickForm);
   btnVacation.addEventListener("click", openVacationForm);
 
-  btnClearToday.addEventListener("click", clearToday);
-  btnClearAll.addEventListener("click", clearAll);
+  btnAccount.addEventListener("click", handleAccountClick);
+  btnSyncNow.addEventListener("click", async () => { closeDrawer(); await syncOutbox(); render(); });
+  btnClearToday.addEventListener("click", clearTodayLocal);
+  btnClearAllLocal.addEventListener("click", clearAllLocal);
 
-  // service worker register + auto update
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", async () => {
-      try {
-        const reg = await navigator.serviceWorker.register("./sw.js");
-        reg.update();
-        reg.addEventListener("updatefound", () => {
-          const nw = reg.installing;
-          if(!nw) return;
-          nw.addEventListener("statechange", () => {
-            if (nw.state === "activated") location.reload();
-          });
-        });
-      } catch {}
-    });
+  // online/offline
+  window.addEventListener("online", () => { syncOutbox().catch(()=>{}); render(); });
+  window.addEventListener("offline", () => { render(); });
+
+  // auth state changes
+  supabase.auth.onAuthStateChange((_event, _session) => {
+    ensureAuthUI().then(()=>{ render(); syncOutbox().catch(()=>{}); });
+  });
+
+  /******************************************************************
+   * 16) INIT
+   ******************************************************************/
+  (async () => {
+    // sanity check: pokud nejsou vyplněné klíče, upozorni (ale nech UI běžet lokálně)
+    if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){
+      setStatus("Doplň SUPABASE_URL a SUPABASE_ANON_KEY (zatím jen lokálně).");
+      setSyncBadge({state:"warn", text:"bez supabase"});
+    }else{
+      setSyncBadge({state: navigator.onLine ? "warn" : "bad", text: navigator.onLine ? "čekám na login" : "offline"});
+    }
+
+    // default month
+    if(!monthPick.value) monthPick.value = monthKeyDefault();
+
+    // UI account
+    await ensureAuthUI();
+
+    // pokud je user přihlášený, můžeš stáhnout dnešek z cloudu a přimíchat do cache (aby to přežilo smazání cache → po loginu se obnoví)
+    try{
+      const user = await getUser();
+      if(user && navigator.onLine){
+        const todayCloud = await fetchTodayEvents();
+        // merge cloud -> cache (de-dupe hrubě podle kind+ts+session_id+store_name)
+        const cache = cacheLoad().map(normalizeRow);
+        const seen = new Set(cache.map(x => `${x.kind}|${x.ts}|${x.session_id||""}|${x.store_name||""}`));
+        for(const r of todayCloud){
+          const e = normalizeRow(r);
+          const key = `${e.kind}|${e.ts}|${e.session_id||""}|${e.store_name||""}`;
+          if(!seen.has(key)){
+            cache.push(e);
+            seen.add(key);
+          }
+        }
+        cacheSave(cache);
+      }
+    }catch{
+      // ignoruj – UI pojede z cache
+    }
+
+    // pokus o sync outboxu
+    syncOutbox().catch(()=>{});
+
+    // tick + render
+    render();
+    setInterval(() => { updateNow(); }, 1000);
+  })();
+
+  function updateNow(){ // keep it for interval
+    const d = new Date();
+    elNow.textContent = `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}  ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
   }
 
-  // tick
-  render();
-  setInterval(updateNow, 1000);
 })();
 </script>
+
 </body>
 </html>
