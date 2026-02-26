@@ -5,618 +5,333 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MERCHANDISER LOG</title>
 
-  <!-- PWA (pokud používáš manifest.webmanifest, nech takhle; jinak změň na manifest.json) -->
+  <!-- PWA -->
   <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="theme-color" content="#0b1020" />
 
-  <!-- Supabase JS (CDN, bez bundleru) -->
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    :root{
-      --bg:#eef2f7;
-      --card:#ffffff;
-      --shadow:0 18px 40px rgba(15, 23, 42, .14);
-      --text:#0f172a;
-      --muted:#64748b;
-
-      --brand:#4f46e5;
-      --brandDark:#4338ca;
-
-      --green:#16a34a;
-      --greenDark:#15803d;
-
-      --red:#ef4444;
-      --redDark:#dc2626;
-
-      --blue:#60a5fa;      /* vstup prodejna */
-      --blueDark:#3b82f6;
-
-      --yellow:#fbbf24;    /* odchod prodejna */
-      --yellowDark:#f59e0b;
-
-      --gray:#9ca3af;
-      --grayDark:#6b7280;
-
-      --navy:#111827;
-      --navyDark:#0b1220;
-
-      --line:#e5e7eb;
-      --radius:18px;
+    /* Neon / glass background */
+    .neon-bg {
+      background:
+        radial-gradient(900px 500px at 18% 8%, rgba(99,102,241,.38), transparent 60%),
+        radial-gradient(700px 500px at 82% 16%, rgba(236,72,153,.22), transparent 55%),
+        radial-gradient(650px 650px at 65% 78%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(900px 600px at 10% 92%, rgba(59,130,246,.16), transparent 60%),
+        linear-gradient(180deg, #070a14 0%, #0a0f21 40%, #070a14 100%);
     }
-
-    *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    body{
-      margin:0;
-      background: var(--bg);
-      color: var(--text);
-      display:flex;
-      justify-content:center;
-      padding:24px 14px;
+    .glass {
+      background: rgba(17, 24, 39, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(148,163,184,.16);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
     }
-    .phone{ width:min(430px, 100%); }
-    .card{
-      background: var(--card);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      border: 1px solid rgba(15,23,42,.06);
+    .glass-soft {
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(148,163,184,.12);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
     }
-
-    .header{
-      position: relative;
-      background: var(--brand);
-      padding: 22px 18px 18px;
-      text-align:center;
-      color:#fff;
-    }
-    .title{
-      font-weight: 900;
-      letter-spacing: .5px;
-      font-size: 22px;
-      margin:0 0 8px;
-    }
-    .now{ margin:0; opacity:.95; font-weight: 700; font-size: 14px; }
-    .pill{
-      display:inline-block;
-      margin-top: 12px;
-      padding: 8px 14px;
+    .glow-line {
+      height: 4px;
       border-radius: 999px;
-      background: rgba(15,23,42,.35);
-      border: 1px solid rgba(255,255,255,.25);
-      font-weight: 800;
-      font-size: 12px;
-      letter-spacing: .25px;
-      text-transform: uppercase;
+      background: linear-gradient(90deg, rgba(99,102,241,.0), rgba(99,102,241,.9), rgba(236,72,153,.9), rgba(34,197,94,.0));
+      filter: drop-shadow(0 0 14px rgba(236,72,153,.35));
     }
+    .btn-glow-green { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(34,197,94,.20); }
+    .btn-glow-red   { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(239,68,68,.18); }
+    .btn-glow-blue  { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(59,130,246,.18); }
+    .btn-glow-amber { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(245,158,11,.18); }
 
-    /* hamburger */
-    .hamb{
-      position:absolute;
-      right: 14px;
-      top: 14px;
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.22);
-      background: rgba(15,23,42,.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      user-select:none;
-    }
-    .hamb:active{ transform: scale(.99); }
-    .hambLines{
-      width: 18px; height: 12px; position:relative;
-    }
-    .hambLines span{
-      position:absolute; left:0; right:0;
-      height:2px; border-radius:2px;
-      background:#fff;
-      opacity:.95;
-    }
-    .hambLines span:nth-child(1){ top:0; }
-    .hambLines span:nth-child(2){ top:5px; }
-    .hambLines span:nth-child(3){ top:10px; }
+    /* overlay stacking */
+    #drawerBack { z-index: 8000; }
+    #formBack { z-index: 9000; }
+    #modalBack { z-index: 10000; }
+    #loginBack { z-index: 11000; }
 
-    .content{ padding: 16px 18px 18px; }
-    .sectionTitle{
-      font-size: 12px;
-      font-weight: 900;
-      color: #7c8697;
-      letter-spacing: 1px;
-      margin: 10px 2px 10px;
-      text-transform: uppercase;
-    }
-    .row{ display:flex; gap: 14px; }
-
-    .btn{
-      border:0;
-      border-radius: 12px;
-      padding: 14px 12px;
-      font-weight: 900;
-      font-size: 15px;
-      width:100%;
-      color:#fff;
-      cursor:pointer;
-      box-shadow: 0 10px 18px rgba(2,6,23,.10);
-      transition: transform .05s ease, filter .12s ease, opacity .12s ease;
-      user-select:none;
-    }
-    .btn:active{ transform: scale(.99); }
-    .btn[disabled]{ opacity:.45; cursor:not-allowed; box-shadow:none; }
-
-    .green{ background: var(--green); }
-    .green:active{ background: var(--greenDark); }
-
-    .red{ background: var(--red); }
-    .red:active{ background: var(--redDark); }
-
-    .blue{ background: var(--blue); color:#0b1220; }
-    .blue:active{ background: var(--blueDark); color:#fff; }
-
-    .yellow{ background: var(--yellow); color:#0b1220; }
-    .yellow:active{ background: var(--yellowDark); color:#fff; }
-
-    .gray{ background: var(--gray); }
-    .gray:active{ background: var(--grayDark); }
-
-    .navy{ background: var(--navy); }
-    .navy:active{ background: var(--navyDark); }
-
-    .divider{
-      height:1px;
-      background: var(--line);
-      margin: 14px 0;
-    }
-
-    .fieldRow{
-      display:flex;
-      gap: 12px;
-      align-items:center;
-      margin-top: 6px;
-    }
-
-    .input{
-      width:100%;
-      border-radius: 12px;
-      border: 1px solid #d8dee9;
-      padding: 12px 12px;
-      font-size: 14px;
-      outline:none;
-      background:#fff;
-    }
-    .input:focus{
-      border-color: rgba(79,70,229,.45);
-      box-shadow: 0 0 0 3px rgba(79,70,229,.15);
-    }
-
-    .status{
-      padding: 10px 12px;
-      background: #f8fafc;
-      border: 1px solid #e7edf6;
-      border-radius: 14px;
-      font-size: 12px;
-      color: #334155;
-      font-weight: 900;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border:1px solid #e7edf6;
-      background:#fff;
-      font-size: 12px;
-      font-weight: 900;
-      white-space:nowrap;
-    }
-    .dot{ width:8px; height:8px; border-radius:999px; background:#94a3b8; }
-    .dot.ok{ background:#22c55e; }
-    .dot.warn{ background:#f59e0b; }
-    .dot.bad{ background:#ef4444; }
-
-    .activity{ margin-top: 10px; padding-bottom: 6px; }
-
-    .item{
-      border: 1px solid #e7edf6;
-      background: #fbfdff;
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-top: 8px;
-    }
-
-    .itemTop{
-      display:flex;
-      justify-content:space-between;
-      gap: 12px;
-      align-items:flex-start;
-    }
-
-    .tag{
-      font-weight: 900;
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(79,70,229,.10);
-      color: var(--brandDark);
-      white-space:nowrap;
-    }
-
-    .itemTitle{
-      font-weight: 900;
-      font-size: 14px;
-      margin:0;
-    }
-
-    .itemSub{
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 900;
-      white-space: pre-wrap;
-    }
-
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .tiny{ font-size: 11px; color: var(--muted); font-weight: 900; }
-
-    .exportBar{
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      margin-top: 8px;
-    }
-
-    .month{
-      width: 150px;
-      min-width: 150px;
-      border-radius: 12px;
-      border: 1px solid #d8dee9;
-      padding: 12px 10px;
-      font-weight: 900;
-      font-size: 13px;
-      background:#fff;
-      color: var(--text);
-      outline:none;
-    }
-
-    /* CONFIRM MODAL */
-    .modalBack{
-      position: fixed; inset:0;
-      background: rgba(15,23,42,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-    }
-    #modalBack{ z-index: 10000; }    /* confirm = TOP */
-    #formBack{ z-index: 9000; }      /* form = middle */
-
-    .modal{
-      width: min(420px, 100%);
-      background:#fff;
-      border-radius: 18px;
-      box-shadow: 0 30px 70px rgba(0,0,0,.22);
-      overflow:hidden;
-      border: 1px solid rgba(15,23,42,.08);
-    }
-    .modalHead{
-      padding: 14px 14px 10px;
-      background: #f8fafc;
-      border-bottom: 1px solid #e7edf6;
-      font-weight: 1000;
-    }
-    .modalBody{ padding: 14px; }
-    .modalMsg{
-      margin:0;
-      font-size: 14px;
-      font-weight: 900;
-      color:#0f172a;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-    .modalActions{
-      display:flex;
-      gap: 10px;
-      padding: 14px;
-      border-top: 1px solid #e7edf6;
-      background: #fff;
-    }
-
-    /* DRAWER */
-    .drawerBack{
-      position: fixed; inset:0;
-      background: rgba(15,23,42,.40);
-      display:none;
-      z-index: 8000; /* drawer = bottom overlay */
-    }
-    .drawer{
-      position:absolute;
-      right: 0;
-      top: 0;
-      height: 100%;
-      width: min(360px, 92vw);
-      background: #fff;
-      box-shadow: -18px 0 40px rgba(0,0,0,.18);
-      border-left: 1px solid rgba(15,23,42,.08);
-      display:flex;
-      flex-direction: column;
-    }
-    .drawerHead{
-      padding: 14px;
-      border-bottom: 1px solid #e7edf6;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      font-weight: 1000;
-    }
-    .drawerClose{
-      width: 40px; height: 40px;
-      border-radius: 12px;
-      border:1px solid #e7edf6;
-      background:#f8fafc;
-      cursor:pointer;
-      font-weight: 1000;
-    }
-    .drawerBody{
-      padding: 14px;
-      overflow:auto;
-    }
-    .drawerGroupTitle{
-      font-size: 12px;
-      font-weight: 1000;
-      color:#64748b;
-      letter-spacing: .9px;
-      text-transform: uppercase;
-      margin: 10px 2px 10px;
-    }
-    .drawerBtn{
-      width:100%;
-      border-radius: 14px;
-      border:1px solid #e7edf6;
-      background:#fff;
-      padding: 12px 12px;
-      font-weight: 1000;
-      cursor:pointer;
-      text-align:left;
-      display:flex;
-      justify-content: space-between;
-      align-items:center;
-      margin-bottom: 10px;
-    }
-    .drawerBtn:active{ transform: scale(.99); }
-    .chip{
-      font-size: 12px;
-      font-weight: 1000;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background:#f1f5f9;
-      color:#334155;
-      border:1px solid #e7edf6;
-      white-space:nowrap;
-    }
-
-    /* FORM MODAL */
-    .formRow{ margin-top: 10px; }
-    .label{
-      display:block;
-      font-size: 12px;
-      font-weight: 1000;
-      color:#64748b;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-    }
-
-    /* LOGIN OVERLAY */
-    .loginBack{
-      position: fixed; inset:0;
-      background: rgba(15,23,42,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 11000;
-    }
-    .loginCard{
-      width: min(420px, 100%);
-      background:#fff;
-      border-radius: 18px;
-      box-shadow: 0 30px 70px rgba(0,0,0,.22);
-      overflow:hidden;
-      border: 1px solid rgba(15,23,42,.08);
-    }
-    .loginHead{
-      padding: 14px 14px 10px;
-      background: #f8fafc;
-      border-bottom: 1px solid #e7edf6;
-      font-weight: 1000;
-    }
-    .loginBody{ padding: 14px; }
-    .loginActions{
-      display:flex;
-      gap: 10px;
-      padding: 14px;
-      border-top: 1px solid #e7edf6;
-      background:#fff;
-    }
+    /* dot states (keep JS logic) */
+    .dot{ width:10px; height:10px; border-radius:999px; background:#94a3b8; }
+    .dot.ok{ background:#22c55e; box-shadow: 0 0 14px rgba(34,197,94,.40); }
+    .dot.warn{ background:#f59e0b; box-shadow: 0 0 14px rgba(245,158,11,.35); }
+    .dot.bad{ background:#ef4444; box-shadow: 0 0 14px rgba(239,68,68,.30); }
   </style>
 </head>
 
-<body>
-  <div class="phone">
-    <div class="card">
-      <div class="header">
-        <div class="hamb" id="btnHamb" title="Menu">
-          <div class="hambLines"><span></span><span></span><span></span></div>
+<body class="min-h-screen neon-bg text-slate-100">
+  <div class="mx-auto w-full max-w-[480px] px-4 py-6">
+    <!-- HEADER CARD -->
+    <div class="glass rounded-[28px] overflow-hidden">
+      <div class="glow-line"></div>
+
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-3">
+          <!-- Left: account shortcut (opens drawer account action in your logic) -->
+          <div class="flex flex-col items-center gap-2">
+            <div class="h-14 w-14 rounded-2xl glass-soft flex items-center justify-center border border-slate-400/15">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="opacity-90">
+                <path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M20 22a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="text-[11px] font-extrabold tracking-widest uppercase text-slate-300">LOGIN</div>
+          </div>
+
+          <!-- Center title -->
+          <div class="flex-1 text-center pt-1">
+            <div class="text-xl font-black tracking-wide">MERCHANDISER LOG</div>
+            <div class="mt-1 text-sm text-slate-300">
+              <span id="nowText" class="font-semibold">--</span>
+            </div>
+          </div>
+
+          <!-- Right hamburger -->
+          <button id="btnHamb"
+            class="h-12 w-12 rounded-2xl glass-soft flex items-center justify-center border border-slate-400/15 hover:border-slate-200/20 transition active:scale-[.99]"
+            title="Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="opacity-90">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
 
-        <h1 class="title">MERCHANDISER LOG</h1>
-        <p class="now mono" id="nowText">--</p>
-        <div class="pill" id="modePill">MIMO PRACOVNÍ DOBU</div>
+        <!-- Status LED row -->
+        <div class="mt-4 grid grid-cols-3 gap-3">
+          <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
+            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(34,197,94,.45)]"></span>
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200">GPS</span>
+          </div>
+          <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
+            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(34,197,94,.45)]"></span>
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200">ONLINE</span>
+          </div>
+          <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
+            <span class="dot" id="syncDot"></span>
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200">AUTH</span>
+          </div>
+        </div>
+
+        <!-- Mode pill -->
+        <div class="mt-4 flex justify-center">
+          <div id="modePill"
+            class="px-5 py-2 rounded-full glass-soft border border-rose-400/20 text-rose-200 text-[11px] font-extrabold tracking-widest uppercase shadow-[0_0_24px_rgba(244,63,94,.14)]">
+            MIMO PRACOVNÍ DOBU
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CARD -->
+    <div class="mt-5 glass rounded-[28px] p-5">
+      <!-- Work shift -->
+      <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-3">PRACOVNÍ SMĚNA</div>
+      <div class="grid grid-cols-2 gap-4">
+        <button id="btnShiftStart"
+          class="rounded-2xl py-5 text-emerald-300 font-black tracking-widest bg-emerald-500/15 border border-emerald-400/20 btn-glow-green active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          PŘÍCHOD
+        </button>
+        <button id="btnShiftEnd"
+          class="rounded-2xl py-5 text-rose-300 font-black tracking-widest bg-rose-500/12 border border-rose-400/20 btn-glow-red active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          ODCHOD
+        </button>
       </div>
 
-      <div class="content">
-        <div class="sectionTitle">PRACOVNÍ SMĚNA</div>
-        <div class="row">
-          <button class="btn green" id="btnShiftStart">PŘÍCHOD</button>
-          <button class="btn red" id="btnShiftEnd">ODCHOD</button>
+      <div class="my-5 h-px bg-slate-200/10"></div>
+
+      <!-- Store visit -->
+      <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-3">NÁVŠTĚVA PRODEJNY</div>
+      <input id="storeName"
+        class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25 disabled:opacity-50"
+        placeholder="Název prodejny (např. Albert Anděl)" />
+
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <button id="btnStoreIn"
+          class="rounded-2xl py-5 text-sky-200 font-black tracking-widest bg-sky-500/15 border border-sky-300/20 btn-glow-blue active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          VSTUP NA<br><span class="text-[10px] opacity-80">PRODEJNU</span>
+        </button>
+        <button id="btnStoreOut"
+          class="rounded-2xl py-5 text-amber-200 font-black tracking-widest bg-amber-400/15 border border-amber-200/20 btn-glow-amber active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          ODCHOD Z<br><span class="text-[10px] opacity-80">PRODEJNY</span>
+        </button>
+      </div>
+
+      <div class="my-5 h-px bg-slate-200/10"></div>
+
+      <!-- Export -->
+      <div class="grid grid-cols-[1fr_150px] gap-3 items-center">
+        <button id="btnExport"
+          class="rounded-2xl py-4 font-black tracking-widest bg-slate-950/40 border border-slate-400/15 hover:border-slate-200/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          <span class="inline-flex items-center justify-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="opacity-85">
+              <path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Export CSV
+          </span>
+        </button>
+
+        <input id="monthPick" type="month"
+          class="rounded-2xl px-3 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25 disabled:opacity-50" />
+      </div>
+
+      <!-- Status bar (kept IDs) -->
+      <div class="mt-4 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10">
+        <div class="flex items-center justify-between gap-3">
+          <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">STATUS</div>
+          <div class="text-sm font-black tracking-wide text-slate-100" id="statusText">Stav: připraveno.</div>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="sectionTitle">NÁVŠTĚVA PRODEJNY</div>
-        <div class="fieldRow">
-          <input class="input" id="storeName" placeholder="Název prodejny (např. Albert Anděl)" />
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="row">
-          <button class="btn blue" id="btnStoreIn">VSTUP NA<br/>PRODEJNU</button>
-          <button class="btn yellow" id="btnStoreOut">ODCHOD Z<br/>PRODEJNY</button>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="exportBar">
-          <button class="btn navy" id="btnExport">⬇ Stáhnout přehled (CSV)</button>
-          <input class="month" id="monthPick" type="month" />
-        </div>
-
-        <div style="height:10px"></div>
-        <div class="status" id="status">
-          <span id="statusText">Stav: připraveno.</span>
-          <span class="badge" id="syncBadge"><span class="dot" id="syncDot"></span><span id="syncText">offline</span></span>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="sectionTitle">DNEŠNÍ AKTIVITA</div>
-        <div class="activity" id="activity"></div>
-
-        <div class="tiny">
-          Data se ukládají online na Supabase (po přihlášení). Když není signál, ukládá se do fronty a odešle se později.
+        <div class="mt-2 text-[11px] text-slate-400">
+          <span id="syncText">offline</span>
         </div>
       </div>
+
+      <!-- Activity -->
+      <div class="mt-6 text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">DNEŠNÍ AKTIVITA</div>
+      <div id="activity" class="mt-3 space-y-3"></div>
+
+      <div class="mt-4 text-[11px] text-slate-500">
+        • Data se ukládají online na Supabase (po přihlášení). Když není signál, ukládá se do fronty a odešle se později.
+      </div>
+    </div>
+
+    <div class="mt-5 text-center text-[10px] text-slate-600 tracking-widest opacity-70">
+      MERCHANDISER LOG • NEON/GLASS UI
     </div>
   </div>
 
   <!-- Confirm modal -->
-  <div class="modalBack" id="modalBack" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modalHead" id="modalTitle">Potvrzení</div>
-      <div class="modalBody">
-        <p class="modalMsg" id="modalMsg">--</p>
+  <div id="modalBack" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5" aria-hidden="true">
+    <div class="glass rounded-3xl w-full max-w-[430px] overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200/10 font-black tracking-wide">Potvrzení</div>
+      <div class="px-5 py-5">
+        <p id="modalMsg" class="text-slate-200 font-semibold whitespace-pre-wrap">--</p>
       </div>
-      <div class="modalActions">
-        <button class="btn green" id="modalYes">ANO</button>
-        <button class="btn red" id="modalNo">NE</button>
+      <div class="px-5 py-4 border-t border-slate-200/10 flex gap-3">
+        <button id="modalYes" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition">
+          ANO
+        </button>
+        <button id="modalNo" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition">
+          NE
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Drawer -->
-  <div class="drawerBack" id="drawerBack" aria-hidden="true">
-    <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
-      <div class="drawerHead">
-        <div id="drawerTitle">MENU</div>
-        <button class="drawerClose" id="drawerClose">✕</button>
+  <div id="drawerBack" class="fixed inset-0 bg-black/45 hidden" aria-hidden="true">
+    <div class="absolute right-0 top-0 h-full w-[92vw] max-w-[380px] glass border-l border-slate-200/10">
+      <div class="px-5 py-4 border-b border-slate-200/10 flex items-center justify-between">
+        <div class="font-black tracking-wide" id="drawerTitle">MENU</div>
+        <button id="drawerClose" class="h-10 w-10 rounded-2xl glass-soft border border-slate-200/10 flex items-center justify-center active:scale-[.99] transition">
+          ✕
+        </button>
       </div>
-      <div class="drawerBody">
-        <div class="drawerGroupTitle">Docházka</div>
 
-        <button class="drawerBtn" id="btnTraining">
-          <span>Školení (placené)</span>
-          <span class="chip">od–do</span>
+      <div class="p-5 space-y-3 overflow-auto h-[calc(100%-72px)]">
+        <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Docházka</div>
+
+        <button id="btnTraining" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold">Školení (placené)</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">od–do</span>
         </button>
 
-        <button class="drawerBtn" id="btnSick">
-          <span>Nemoc (neplacená)</span>
-          <span class="chip">od–do</span>
+        <button id="btnSick" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold">Nemoc (neplacená)</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">od–do</span>
         </button>
 
-        <button class="drawerBtn" id="btnVacation">
-          <span>Dovolená</span>
-          <span class="chip">dny</span>
+        <button id="btnVacation" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold">Dovolená</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">dny</span>
         </button>
 
-        <div class="drawerGroupTitle">Účet</div>
-        <button class="drawerBtn" id="btnAccount">
-          <span id="accountLabel">Nepřihlášen</span>
-          <span class="chip" id="accountChip">login</span>
+        <div class="mt-4 text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Účet</div>
+        <button id="btnAccount" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold" id="accountLabel">Nepřihlášen</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10" id="accountChip">login</span>
         </button>
 
-        <div class="drawerGroupTitle">Servis</div>
-        <button class="drawerBtn" id="btnSyncNow">
-          <span>Odeslat čekající záznamy</span>
-          <span class="chip">sync</span>
+        <div class="mt-4 text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Servis</div>
+        <button id="btnSyncNow" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold">Odeslat čekající záznamy</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">sync</span>
         </button>
 
-        <button class="drawerBtn" id="btnClearToday">
-          <span>Vymazat dnešní lokální cache</span>
-          <span class="chip">bez cloudu</span>
+        <button id="btnClearToday" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold">Vymazat dnešní lokální cache</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-rose-500/15 border border-rose-300/15 text-rose-200">lokál</span>
         </button>
 
-        <button class="drawerBtn" id="btnClearAllLocal">
-          <span>Vymazat veškerá lokální data</span>
-          <span class="chip">bez cloudu</span>
+        <button id="btnClearAllLocal" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
+          <span class="font-bold">Vymazat veškerá lokální data</span>
+          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-rose-500/15 border border-rose-300/15 text-rose-200">lokál</span>
         </button>
 
-        <div class="tiny">Tip: pokud něco zlobí po update, smaž data webu (Chrome → 🔒 → Úložiště → Vymazat data).</div>
+        <div class="text-[11px] text-slate-500">
+          Tip: po update PWA někdy pomůže smazat data webu (Chrome → 🔒 → Úložiště → Vymazat data).
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Form modal -->
-  <div class="modalBack" id="formBack" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
-      <div class="modalHead" id="formTitle">Formulář</div>
-      <div class="modalBody" id="formBody"></div>
-      <div class="modalActions" id="formActions"></div>
+  <div id="formBack" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5" aria-hidden="true">
+    <div class="glass rounded-3xl w-full max-w-[430px] overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200/10 font-black tracking-wide" id="formTitle">Formulář</div>
+      <div class="px-5 py-5" id="formBody"></div>
+      <div class="px-5 py-4 border-t border-slate-200/10 flex gap-3" id="formActions"></div>
     </div>
   </div>
 
   <!-- Login overlay -->
-  <div class="loginBack" id="loginBack" aria-hidden="true">
-    <div class="loginCard" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
-      <div class="loginHead" id="loginTitle">Přihlášení</div>
-      <div class="loginBody">
-        <div class="tiny" style="margin-bottom:10px">Přihlášení je potřeba, aby se docházka ukládala online.</div>
+  <div id="loginBack" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5" aria-hidden="true">
+    <div class="glass rounded-3xl w-full max-w-[430px] overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200/10 font-black tracking-wide">Přihlášení</div>
+      <div class="px-5 py-5">
+        <div class="text-[12px] text-slate-400 mb-4">Přihlášení je potřeba, aby se docházka ukládala online.</div>
 
-        <div class="formRow">
-          <label class="label" for="loginEmail">Email</label>
-          <input class="input" id="loginEmail" type="email" placeholder="name@company.cz" />
-        </div>
+        <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-2">Email</label>
+        <input id="loginEmail" type="email"
+          class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+          placeholder="name@company.cz" />
 
-        <div class="formRow">
-          <label class="label" for="loginPass">Heslo</label>
-          <input class="input" id="loginPass" type="password" placeholder="••••••••" />
-        </div>
+        <div class="h-4"></div>
 
-        <div class="tiny" id="loginMsg" style="margin-top:10px;color:#ef4444;display:none;"></div>
+        <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-2">Heslo</label>
+        <input id="loginPass" type="password"
+          class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+          placeholder="••••••••" />
+
+        <div id="loginMsg" class="mt-3 text-[12px] text-rose-300 hidden"></div>
       </div>
-      <div class="loginActions">
-  <button class="btn green" id="btnLogin">Přihlásit</button>
-  <button class="btn navy" id="btnResetPass">Reset hesla</button>
-  <button class="btn gray" id="btnLoginLater">Později</button>
-</div>
+
+      <div class="px-5 py-4 border-t border-slate-200/10 flex gap-3">
+        <button id="btnLogin" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition">
+          Přihlásit
+        </button>
+        <button id="btnResetPass" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-slate-950/35 border border-slate-200/10 active:scale-[.99] transition">
+          Reset hesla
+        </button>
+        <button id="btnLoginLater" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-slate-950/35 border border-slate-200/10 active:scale-[.99] transition">
+          Později
+        </button>
+      </div>
     </div>
   </div>
 
 <script>
 (() => {
   /******************************************************************
-   * 0) SUPABASE KONFIGURACE – VYPLŇ!
+   * 0) SUPABASE KONFIGURACE
    ******************************************************************/
   const SUPABASE_URL = "https://rzjgpjhtqzoafzndeqox.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6amdwamh0cXpvYWZ6bmRlcW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjI1NTUsImV4cCI6MjA4NzUzODU1NX0.Awfj2HOpap8e2wRUtDUZZYh2AKeGoQPkMVwTbZ1qvkA";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6amdwamh0cXpvYWZ6bmRlcW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjI1NTUsImV4cCI6MjA4NzUzODU1NX0.Awfj2HOpap8e2wRUtDUZZYh2AKeGoQPkMVwTbZ1qvkA";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   /******************************************************************
@@ -626,7 +341,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   const elPill = document.getElementById("modePill");
 
   const elStatusText = document.getElementById("statusText");
-  const elSyncBadge = document.getElementById("syncBadge");
   const elSyncDot = document.getElementById("syncDot");
   const elSyncText = document.getElementById("syncText");
 
@@ -732,7 +446,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   function setSyncBadge({state, text}){
-    // state: ok | warn | bad
     elSyncDot.classList.remove("ok","warn","bad");
     if(state === "ok") elSyncDot.classList.add("ok");
     if(state === "warn") elSyncDot.classList.add("warn");
@@ -758,7 +471,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       modalMsg.textContent = message;
       modalBack.style.display = "flex";
       modalBack.setAttribute("aria-hidden","false");
-      modalBack.style.zIndex = "10000"; // vždy navrch
+      modalBack.style.zIndex = "10000";
 
       const cleanup = () => {
         modalBack.style.display = "none";
@@ -791,7 +504,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
     buttons.forEach(b => {
       const btn = document.createElement("button");
-      btn.className = b.cls || "btn gray";
+      btn.className = b.cls || "";
       btn.textContent = b.text;
       btn.onclick = async () => { await b.onClick?.(); };
       formActions.appendChild(btn);
@@ -812,7 +525,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   function showLoginOverlay(show){
     loginBack.style.display = show ? "flex" : "none";
     loginBack.setAttribute("aria-hidden", show ? "false" : "true");
-    loginMsg.style.display = "none";
+    loginMsg.classList.add("hidden");
     loginMsg.textContent = "";
   }
 
@@ -886,8 +599,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     }else{
       accountLabel.textContent = "Nepřihlášen";
       accountChip.textContent = "login";
-      // login overlay ukážeme jen pokud chceš striktní režim – nechávám „měkce“:
-      // showLoginOverlay(true);
     }
     return user;
   }
@@ -896,8 +607,8 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
    * 6) ONLINE + OFFLINE QUEUE (Outbox)
    ******************************************************************/
   const OUTBOX_KEY = "merch_outbox_v1";
-  const LOCAL_CACHE_KEY = "merch_cache_events_v1"; // lokální cache eventů (pro UI/rychlost)
-  const LOCAL_CACHE_MAX = 2000; // limit eventů v cache
+  const LOCAL_CACHE_KEY = "merch_cache_events_v1";
+  const LOCAL_CACHE_MAX = 2000;
 
   function outboxLoad(){
     try{
@@ -906,9 +617,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       return Array.isArray(arr) ? arr : [];
     }catch{ return []; }
   }
-  function outboxSave(arr){
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(arr));
-  }
+  function outboxSave(arr){ localStorage.setItem(OUTBOX_KEY, JSON.stringify(arr)); }
 
   function cacheLoad(){
     try{
@@ -928,9 +637,9 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
   function buildEventRow({kind, ts, session_id=null, store_name=null, lat=null, lon=null, acc=null, payload={}}){
     const iso = new Date(ts).toISOString();
-    const day = iso.slice(0,10); // YYYY-MM-DD
+    const day = iso.slice(0,10);
     return {
-      client_event_id: uuid(),  // jen lokálně, v DB je vlastní id
+      client_event_id: uuid(),
       kind,
       ts: iso,
       day,
@@ -964,25 +673,20 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   async function queueAndTrySend(row){
-    // 1) vždy ulož do outboxu (aby se nic neztratilo)
     const ob = outboxLoad();
     ob.push(row);
     outboxSave(ob);
 
-    // 2) ulož do lokální cache pro UI (okamžitě)
     const cache = cacheLoad();
     cache.push(row);
     cacheSave(cache);
 
-    // 3) pokus se odeslat (pokud jde)
     try{
       await pushEventToSupabase(row);
-      // když ok → odeber z outboxu (první výskyt client_event_id)
       const ob2 = outboxLoad().filter(x => x.client_event_id !== row.client_event_id);
       outboxSave(ob2);
       setSyncBadge({state:"ok", text: ob2.length ? `sync: ${ob2.length} čeká` : "sync: ok"});
     }catch(e){
-      // zůstává v outboxu
       const ob3 = outboxLoad();
       setSyncBadge({state:navigator.onLine ? "warn" : "bad", text: `čeká: ${ob3.length}`});
       throw e;
@@ -1005,7 +709,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       return;
     }
 
-    // pošli postupně (jednoduché, robustní)
     let sent = 0;
     const remaining = [];
     for(const row of ob){
@@ -1022,7 +725,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   /******************************************************************
-   * 7) FETCH Z CLOUDU (pro export a obnovu po smazání cache)
+   * 7) FETCH Z CLOUDU
    ******************************************************************/
   async function fetchMonthEvents(year, month1to12){
     const user = await getUser();
@@ -1044,7 +747,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
   async function fetchTodayEvents(){
     const user = await getUser();
-    if(!user) return []; // pro UI použijeme cache
+    if(!user) return [];
     const dk = todayKey();
     const from = new Date(dk + "T00:00:00").toISOString();
     const to = new Date(dk + "T23:59:59.999").toISOString();
@@ -1061,10 +764,9 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   /******************************************************************
-   * 8) DOMÉNOVÁ LOGIKA (sessions/visits z eventů)
+   * 8) DOMÉNOVÁ LOGIKA
    ******************************************************************/
   function normalizeRow(r){
-    // r může být z cache (client_event_id) nebo z DB (id)
     return {
       id: r.id || r.client_event_id || uuid(),
       kind: r.kind,
@@ -1082,7 +784,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   function deriveTodayStateFromEvents(rows){
     const events = rows.map(normalizeRow).filter(r => r.day === todayKey()).sort((a,b)=>a.ts.localeCompare(b.ts));
 
-    // sessions keyed by session_id (SHIFT_START creates it)
     const sessions = new Map();
     const trainings = [];
     const sickness = [];
@@ -1111,23 +812,15 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         const vid = e.payload?.visit_id;
         if(sid && vid && sessions.has(sid)){
           const s = sessions.get(sid);
-          // najdi poslední visit s visit_id bez out
           const v = [...s.visits].reverse().find(x => x.visit_id === vid && !x.out);
           if(v) v.out = e;
         }
       }
-      if(e.kind === "TRAINING"){
-        trainings.push(e);
-      }
-      if(e.kind === "SICK"){
-        sickness.push(e);
-      }
-      if(e.kind === "VACATION"){
-        vacation = true;
-      }
+      if(e.kind === "TRAINING") trainings.push(e);
+      if(e.kind === "SICK") sickness.push(e);
+      if(e.kind === "VACATION") vacation = true;
     }
 
-    // active session = poslední s start!=null a end==null
     const sessArr = Array.from(sessions.values()).sort((a,b)=>{
       const ats = a.start?.ts || "";
       const bts = b.start?.ts || "";
@@ -1150,7 +843,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     const ok = await confirmAction("Přejete si potvrdit příchod do práce?");
     if(!ok) return;
 
-    // pokud už běží session dnes, nedovol
     const st = deriveTodayStateFromEvents(cacheLoad());
     if(st.activeSession){
       setStatus("směna už běží (nejdřív dej odchod).");
@@ -1317,7 +1009,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   /******************************************************************
-   * 10) MENU FUNKCE: školení / nemoc / dovolená
+   * 10) MENU FUNKCE
    ******************************************************************/
   function openTrainingForm(){
     closeDrawer();
@@ -1328,51 +1020,55 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     openForm({
       title: "Školení (placené)",
       bodyHtml: `
-        <div class="formRow">
-          <label class="label" for="trStart">Od</label>
-          <input class="input" type="datetime-local" id="trStart" value="${startDefault}">
+        <div class="space-y-3">
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Od</label>
+          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+            type="datetime-local" id="trStart" value="${startDefault}">
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Do</label>
+          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+            type="datetime-local" id="trEnd" value="${endDefault}">
+          <div class="text-[11px] text-slate-400">Uloží se jako placené školení (event TRAINING).</div>
         </div>
-        <div class="formRow">
-          <label class="label" for="trEnd">Do</label>
-          <input class="input" type="datetime-local" id="trEnd" value="${endDefault}">
-        </div>
-        <div class="tiny" style="margin-top:10px">Uloží se jako placené školení (event TRAINING).</div>
       `,
       buttons: [
-        { text:"Uložit", cls:"btn green", onClick: async () => {
-          const ok = await confirmAction("Potvrdit uložení školení?");
-          if(!ok) return;
+        { text:"Uložit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition",
+          onClick: async () => {
+            const ok = await confirmAction("Potvrdit uložení školení?");
+            if(!ok) return;
 
-          const s = $id("trStart").value;
-          const e = $id("trEnd").value;
-          const startTs = Date.parse(s);
-          const endTs = Date.parse(e);
+            const s = $id("trStart").value;
+            const e = $id("trEnd").value;
+            const startTs = Date.parse(s);
+            const endTs = Date.parse(e);
 
-          if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
-            alert("Neplatný časový rozsah.");
-            return;
+            if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
+              alert("Neplatný časový rozsah.");
+              return;
+            }
+
+            const minutes = minutesDiff(startTs, endTs) ?? 0;
+            const row = buildEventRow({
+              kind: "TRAINING",
+              ts: startTs,
+              payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
+            });
+
+            lockUI(true);
+            try{
+              await queueAndTrySend(row);
+              setStatus("školení uloženo ✅");
+            }catch{
+              setStatus("školení uloženo offline do fronty ✅");
+            }finally{
+              lockUI(false);
+              closeForm();
+              render();
+            }
           }
-
-          const minutes = minutesDiff(startTs, endTs) ?? 0;
-          const row = buildEventRow({
-            kind: "TRAINING",
-            ts: startTs,
-            payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
-          });
-
-          lockUI(true);
-          try{
-            await queueAndTrySend(row);
-            setStatus("školení uloženo ✅");
-          }catch{
-            setStatus("školení uloženo offline do fronty ✅");
-          }finally{
-            lockUI(false);
-            closeForm();
-            render();
-          }
-        }},
-        { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
+        },
+        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition",
+          onClick: async () => closeForm()
+        }
       ]
     });
   }
@@ -1386,51 +1082,55 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     openForm({
       title: "Nemoc (neplacená)",
       bodyHtml: `
-        <div class="formRow">
-          <label class="label" for="siStart">Od</label>
-          <input class="input" type="datetime-local" id="siStart" value="${startDefault}">
+        <div class="space-y-3">
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Od</label>
+          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+            type="datetime-local" id="siStart" value="${startDefault}">
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Do</label>
+          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+            type="datetime-local" id="siEnd" value="${endDefault}">
+          <div class="text-[11px] text-slate-400">Uloží se jako event SICK (neplacené).</div>
         </div>
-        <div class="formRow">
-          <label class="label" for="siEnd">Do</label>
-          <input class="input" type="datetime-local" id="siEnd" value="${endDefault}">
-        </div>
-        <div class="tiny" style="margin-top:10px">Uloží se jako event SICK (neplacené). </div>
       `,
       buttons: [
-        { text:"Uložit", cls:"btn green", onClick: async () => {
-          const ok = await confirmAction("Potvrdit uložení nemoci?");
-          if(!ok) return;
+        { text:"Uložit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition",
+          onClick: async () => {
+            const ok = await confirmAction("Potvrdit uložení nemoci?");
+            if(!ok) return;
 
-          const s = $id("siStart").value;
-          const e = $id("siEnd").value;
-          const startTs = Date.parse(s);
-          const endTs = Date.parse(e);
+            const s = $id("siStart").value;
+            const e = $id("siEnd").value;
+            const startTs = Date.parse(s);
+            const endTs = Date.parse(e);
 
-          if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
-            alert("Neplatný časový rozsah.");
-            return;
+            if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
+              alert("Neplatný časový rozsah.");
+              return;
+            }
+
+            const minutes = minutesDiff(startTs, endTs) ?? 0;
+            const row = buildEventRow({
+              kind: "SICK",
+              ts: startTs,
+              payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
+            });
+
+            lockUI(true);
+            try{
+              await queueAndTrySend(row);
+              setStatus("nemoc uložena ✅");
+            }catch{
+              setStatus("nemoc uložena offline do fronty ✅");
+            }finally{
+              lockUI(false);
+              closeForm();
+              render();
+            }
           }
-
-          const minutes = minutesDiff(startTs, endTs) ?? 0;
-          const row = buildEventRow({
-            kind: "SICK",
-            ts: startTs,
-            payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
-          });
-
-          lockUI(true);
-          try{
-            await queueAndTrySend(row);
-            setStatus("nemoc uložena ✅");
-          }catch{
-            setStatus("nemoc uložena offline do fronty ✅");
-          }finally{
-            lockUI(false);
-            closeForm();
-            render();
-          }
-        }},
-        { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
+        },
+        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition",
+          onClick: async () => closeForm()
+        }
       ]
     });
   }
@@ -1442,47 +1142,50 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     openForm({
       title: "Dovolená",
       bodyHtml: `
-        <div class="formRow">
-          <label class="label" for="vacDay">Vyber den</label>
-          <input class="input" type="date" id="vacDay" value="${dk}">
-        </div>
-        <div class="tiny" style="margin-top:10px">
-          Přidá se event VACATION pro vybraný den (počítej 8 hodin v reportu).
+        <div class="space-y-3">
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Vyber den</label>
+          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+            type="date" id="vacDay" value="${dk}">
+          <div class="text-[11px] text-slate-400">Přidá se event VACATION (8 hodin v reportu).</div>
         </div>
       `,
       buttons: [
-        { text:"Přidat", cls:"btn green", onClick: async () => {
-          const day = $id("vacDay").value;
-          if(!day){ alert("Vyber den."); return; }
-          const ok = await confirmAction(`Přidat dovolenou pro den ${day}?`);
-          if(!ok) return;
+        { text:"Přidat", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition",
+          onClick: async () => {
+            const day = $id("vacDay").value;
+            if(!day){ alert("Vyber den."); return; }
+            const ok = await confirmAction(`Přidat dovolenou pro den ${day}?`);
+            if(!ok) return;
 
-          const ts = Date.parse(day + "T00:00:00");
-          const row = buildEventRow({
-            kind: "VACATION",
-            ts,
-            payload: { day, minutes: 480 }
-          });
+            const ts = Date.parse(day + "T00:00:00");
+            const row = buildEventRow({
+              kind: "VACATION",
+              ts,
+              payload: { day, minutes: 480 }
+            });
 
-          lockUI(true);
-          try{
-            await queueAndTrySend(row);
-            setStatus("dovolená uložena ✅");
-          }catch{
-            setStatus("dovolená uložena offline do fronty ✅");
-          }finally{
-            lockUI(false);
-            closeForm();
-            render();
+            lockUI(true);
+            try{
+              await queueAndTrySend(row);
+              setStatus("dovolená uložena ✅");
+            }catch{
+              setStatus("dovolená uložena offline do fronty ✅");
+            }finally{
+              lockUI(false);
+              closeForm();
+              render();
+            }
           }
-        }},
-        { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
+        },
+        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition",
+          onClick: async () => closeForm()
+        }
       ]
     });
   }
 
   /******************************************************************
-   * 11) EXPORT (CSV) – čte z CLOUDU, pokud je login; jinak z cache
+   * 11) EXPORT (CSV)
    ******************************************************************/
   function parseMonthValue(v){
     if(!v) return null;
@@ -1512,7 +1215,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   function computeDayTotals(dayRows){
-    // work minutes = sum of closed sessions
     const sessions = new Map();
     let trainingMin = 0;
     let sickMin = 0;
@@ -1562,7 +1264,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       if(user){
         rows = await fetchMonthEvents(sel.y, sel.m);
       }else{
-        // fallback: z cache vezmi jen vybraný měsíc
         const all = cacheLoad().map(normalizeRow);
         rows = all.filter(r => {
           const d = new Date(r.ts);
@@ -1592,7 +1293,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       const dayRows = byDay.get(day);
       const t = computeDayTotals(dayRows);
 
-      // DAY_TOTAL
       lines.push([
         "DAY_TOTAL", day,
         t.workMin, t.trainingMin, t.vacationMin, t.sickMin, t.paidMin,
@@ -1602,7 +1302,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         ""
       ].map(x=>csvEscape(x, sep)).join(sep));
 
-      // EVENTS
       for(const e of dayRows){
         lines.push([
           "EVENT", day,
@@ -1615,7 +1314,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       }
     }
 
-    const csv = "\uFEFF" + lines.join("\n"); // BOM pro Excel
+    const csv = "\uFEFF" + lines.join("\n");
     const blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
 
@@ -1643,7 +1342,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   function render(){
     updateNow();
 
-    // sync badge
     const ob = outboxLoad();
     if(!navigator.onLine){
       setSyncBadge({state:"bad", text: `offline (čeká: ${ob.length})`});
@@ -1651,27 +1349,22 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       setSyncBadge({state: ob.length ? "warn" : "ok", text: ob.length ? `čeká: ${ob.length}` : "sync: ok"});
     }
 
-    // derive today state from local cache (rychlé)
     const st = deriveTodayStateFromEvents(cacheLoad());
 
     if(!st.activeSession) elPill.textContent = "MIMO PRACOVNÍ DOBU";
     else if(st.activeSession && st.activeVisit) elPill.textContent = "NA PRODEJNĚ";
     else elPill.textContent = "VE SMĚNĚ";
 
-    // requested button behavior:
     btnShiftStart.disabled = !!st.activeSession;
     btnShiftEnd.disabled = !st.activeSession;
 
     btnStoreIn.disabled = !st.activeSession || !!st.activeVisit;
     btnStoreOut.disabled = !st.activeSession || !st.activeVisit;
 
-    // month default
     if(!monthPick.value) monthPick.value = monthKeyDefault();
 
-    // activity list
     const items = [];
 
-    // sessions + visits
     for(let i=0; i<st.sessions.length; i++){
       const s = st.sessions[i];
       if(s.start){
@@ -1708,7 +1401,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       }
     }
 
-    // training/sick/vacation for today
     for(const e of st.trainings){
       items.push({
         tag:"ŠKOLENÍ",
@@ -1728,16 +1420,22 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     }
 
     if(!items.length){
-      elActivity.innerHTML = `<div class="tiny">Zatím nic. Klikni na PŘÍCHOD.</div>`;
+      elActivity.innerHTML = `
+        <div class="glass-soft rounded-2xl px-4 py-4 border border-slate-400/10 text-slate-400 text-sm">
+          Zatím nic. Klikni na PŘÍCHOD.
+        </div>
+      `;
     }else{
       elActivity.innerHTML = items.map(it => `
-        <div class="item">
-          <div class="itemTop">
+        <div class="glass-soft rounded-2xl px-4 py-4 border border-slate-400/10">
+          <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="itemTitle">${escapeHtml(it.title)}</p>
-              <p class="itemSub mono">${escapeHtml(it.sub)}</p>
+              <div class="text-sm font-black tracking-wide text-slate-100">${escapeHtml(it.title)}</div>
+              <div class="mt-1 text-[12px] text-slate-400 font-semibold whitespace-pre-wrap">${escapeHtml(it.sub)}</div>
             </div>
-            <div class="tag">${escapeHtml(it.tag)}</div>
+            <div class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-300/10 text-indigo-200 whitespace-nowrap">
+              ${escapeHtml(it.tag)}
+            </div>
           </div>
         </div>
       `).join("");
@@ -1769,7 +1467,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     const dk = todayKey();
     const cache = cacheLoad().map(normalizeRow).filter(r => r.day !== dk);
     cacheSave(cache);
-    // outbox dneška taky smažeme (jen lokálně) – opatrně: může to zahodit neodeslané!
     const ob = outboxLoad().filter(r => (normalizeRow(r).day !== dk));
     outboxSave(ob);
     setStatus("dnešek vymazán lokálně 🧼");
@@ -1790,12 +1487,12 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
    * 14) LOGIN HANDLERS
    ******************************************************************/
   btnLogin.addEventListener("click", async () => {
-    loginMsg.style.display = "none";
+    loginMsg.classList.add("hidden");
     const email = (loginEmail.value || "").trim();
-    const pass = (loginPass.value || "").trim();
+    const pass = (loginPass.value || ""); // ✅ NEtrimovat heslo
     if(!email || !pass){
       loginMsg.textContent = "Zadej email a heslo.";
-      loginMsg.style.display = "block";
+      loginMsg.classList.remove("hidden");
       return;
     }
     btnLogin.disabled = true;
@@ -1807,41 +1504,40 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       await syncOutbox();
     }catch(e){
       loginMsg.textContent = "Přihlášení selhalo: " + (e?.message || e);
-      loginMsg.style.display = "block";
+      loginMsg.classList.remove("hidden");
     }finally{
       btnLogin.disabled = false;
       render();
     }
   });
-btnResetPass.addEventListener("click", async () => {
-  loginMsg.style.display = "none";
 
-  const email = (loginEmail.value || "").trim();
-  if(!email){
-    loginMsg.textContent = "Zadej email pro reset hesla.";
-    loginMsg.style.display = "block";
-    loginMsg.style.color = "#ef4444";
-    return;
-  }
+  btnResetPass.addEventListener("click", async () => {
+    loginMsg.classList.add("hidden");
 
-  btnResetPass.disabled = true;
-  try{
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://pavelsukup-netizen.github.io/dochazka/"
-    });
-    if(error) throw error;
+    const email = (loginEmail.value || "").trim();
+    if(!email){
+      loginMsg.textContent = "Zadej email pro reset hesla.";
+      loginMsg.classList.remove("hidden");
+      return;
+    }
 
-    loginMsg.style.color = "#16a34a";
-    loginMsg.textContent = "Hotovo ✅ Koukej do emailu (Reset password) a klikni na odkaz.";
-    loginMsg.style.display = "block";
-  }catch(e){
-    loginMsg.style.color = "#ef4444";
-    loginMsg.textContent = "Reset selhal: " + (e?.message || e);
-    loginMsg.style.display = "block";
-  }finally{
-    btnResetPass.disabled = false;
-  }
-});
+    btnResetPass.disabled = true;
+    try{
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://pavelsukup-netizen.github.io/dochazka/"
+      });
+      if(error) throw error;
+
+      loginMsg.textContent = "Hotovo ✅ Koukej do emailu (Reset password) a klikni na odkaz.";
+      loginMsg.classList.remove("hidden");
+    }catch(e){
+      loginMsg.textContent = "Reset selhal: " + (e?.message || e);
+      loginMsg.classList.remove("hidden");
+    }finally{
+      btnResetPass.disabled = false;
+    }
+  });
+
   btnLoginLater.addEventListener("click", () => {
     showLoginOverlay(false);
   });
@@ -1868,11 +1564,9 @@ btnResetPass.addEventListener("click", async () => {
   btnClearToday.addEventListener("click", clearTodayLocal);
   btnClearAllLocal.addEventListener("click", clearAllLocal);
 
-  // online/offline
   window.addEventListener("online", () => { syncOutbox().catch(()=>{}); render(); });
   window.addEventListener("offline", () => { render(); });
 
-  // auth state changes
   supabase.auth.onAuthStateChange((_event, _session) => {
     ensureAuthUI().then(()=>{ render(); syncOutbox().catch(()=>{}); });
   });
@@ -1881,7 +1575,6 @@ btnResetPass.addEventListener("click", async () => {
    * 16) INIT
    ******************************************************************/
   (async () => {
-    // sanity check: pokud nejsou vyplněné klíče, upozorni (ale nech UI běžet lokálně)
     if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){
       setStatus("Doplň SUPABASE_URL a SUPABASE_ANON_KEY (zatím jen lokálně).");
       setSyncBadge({state:"warn", text:"bez supabase"});
@@ -1889,18 +1582,13 @@ btnResetPass.addEventListener("click", async () => {
       setSyncBadge({state: navigator.onLine ? "warn" : "bad", text: navigator.onLine ? "čekám na login" : "offline"});
     }
 
-    // default month
     if(!monthPick.value) monthPick.value = monthKeyDefault();
-
-    // UI account
     await ensureAuthUI();
 
-    // pokud je user přihlášený, můžeš stáhnout dnešek z cloudu a přimíchat do cache (aby to přežilo smazání cache → po loginu se obnoví)
     try{
       const user = await getUser();
       if(user && navigator.onLine){
         const todayCloud = await fetchTodayEvents();
-        // merge cloud -> cache (de-dupe hrubě podle kind+ts+session_id+store_name)
         const cache = cacheLoad().map(normalizeRow);
         const seen = new Set(cache.map(x => `${x.kind}|${x.ts}|${x.session_id||""}|${x.store_name||""}`));
         for(const r of todayCloud){
@@ -1913,25 +1601,20 @@ btnResetPass.addEventListener("click", async () => {
         }
         cacheSave(cache);
       }
-    }catch{
-      // ignoruj – UI pojede z cache
-    }
+    }catch{}
 
-    // pokus o sync outboxu
     syncOutbox().catch(()=>{});
 
-    // tick + render
     render();
     setInterval(() => { updateNow(); }, 1000);
   })();
 
-  function updateNow(){ // keep it for interval
+  function updateNow(){
     const d = new Date();
     elNow.textContent = `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}  ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
   }
 
 })();
 </script>
-
 </body>
 </html>
