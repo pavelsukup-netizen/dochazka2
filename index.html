@@ -1,0 +1,1486 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MERCHANDISER LOG</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#4f46e5" />
+
+  <style>
+    :root{
+      --bg:#eef2f7;
+      --card:#ffffff;
+      --shadow:0 18px 40px rgba(15, 23, 42, .14);
+      --text:#0f172a;
+      --muted:#64748b;
+
+      --brand:#4f46e5;
+      --brandDark:#4338ca;
+
+      --green:#16a34a;
+      --greenDark:#15803d;
+
+      --red:#ef4444;
+      --redDark:#dc2626;
+
+      --blue:#60a5fa;      /* vstup prodejna */
+      --blueDark:#3b82f6;
+
+      --yellow:#fbbf24;    /* odchod prodejna */
+      --yellowDark:#f59e0b;
+
+      --gray:#9ca3af;
+      --grayDark:#6b7280;
+
+      --navy:#111827;
+      --navyDark:#0b1220;
+
+      --line:#e5e7eb;
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      display:flex;
+      justify-content:center;
+      padding:24px 14px;
+    }
+    .phone{ width:min(430px, 100%); }
+    .card{
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    .header{
+      position: relative;
+      background: var(--brand);
+      padding: 22px 18px 18px;
+      text-align:center;
+      color:#fff;
+    }
+    .title{
+      font-weight: 900;
+      letter-spacing: .5px;
+      font-size: 22px;
+      margin:0 0 8px;
+    }
+    .now{ margin:0; opacity:.95; font-weight: 700; font-size: 14px; }
+    .pill{
+      display:inline-block;
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.35);
+      border: 1px solid rgba(255,255,255,.25);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .25px;
+      text-transform: uppercase;
+    }
+
+    /* hamburger */
+    .hamb{
+      position:absolute;
+      right: 14px;
+      top: 14px;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(15,23,42,.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      user-select:none;
+    }
+    .hamb:active{ transform: scale(.99); }
+    .hambLines{
+      width: 18px; height: 12px; position:relative;
+    }
+    .hambLines span{
+      position:absolute; left:0; right:0;
+      height:2px; border-radius:2px;
+      background:#fff;
+      opacity:.95;
+    }
+    .hambLines span:nth-child(1){ top:0; }
+    .hambLines span:nth-child(2){ top:5px; }
+    .hambLines span:nth-child(3){ top:10px; }
+
+    .content{ padding: 16px 18px 18px; }
+    .sectionTitle{
+      font-size: 12px;
+      font-weight: 900;
+      color: #7c8697;
+      letter-spacing: 1px;
+      margin: 10px 2px 10px;
+      text-transform: uppercase;
+    }
+    .row{ display:flex; gap: 14px; }
+    .btn{
+      border:0;
+      border-radius: 12px;
+      padding: 14px 12px;
+      font-weight: 900;
+      font-size: 15px;
+      width:100%;
+      color:#fff;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+      transition: transform .05s ease, filter .12s ease, opacity .12s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: scale(.99); }
+    .btn[disabled]{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+
+    .green{ background: var(--green); }
+    .green:active{ background: var(--greenDark); }
+
+    .red{ background: var(--red); }
+    .red:active{ background: var(--redDark); }
+
+    .blue{ background: var(--blue); color:#0b1220; }
+    .blue:active{ background: var(--blueDark); color:#fff; }
+
+    .yellow{ background: var(--yellow); color:#0b1220; }
+    .yellow:active{ background: var(--yellowDark); color:#fff; }
+
+    .gray{ background: var(--gray); }
+    .gray:active{ background: var(--grayDark); }
+
+    .navy{ background: var(--navy); }
+    .navy:active{ background: var(--navyDark); }
+
+    .divider{ height:1px; background: var(--line); margin: 14px 0; }
+
+    .fieldRow{ display:flex; gap: 12px; align-items:center; margin-top: 6px; }
+    .input{
+      width:100%;
+      border-radius: 12px;
+      border: 1px solid #d8dee9;
+      padding: 12px 12px;
+      font-size: 14px;
+      outline:none;
+      background:#fff;
+    }
+    .input:focus{
+      border-color: rgba(79,70,229,.45);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+    }
+
+    .status{
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid #e7edf6;
+      border-radius: 14px;
+      font-size: 12px;
+      color: #334155;
+      font-weight: 900;
+    }
+
+    .activity{ margin-top: 10px; padding-bottom: 6px; }
+    .item{
+      border: 1px solid #e7edf6;
+      background: #fbfdff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+    .itemTop{ display:flex; justify-content:space-between; gap: 12px; align-items:flex-start; }
+    .tag{
+      font-weight: 900;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(79,70,229,.10);
+      color: var(--brandDark);
+      white-space:nowrap;
+    }
+    .itemTitle{ font-weight: 900; font-size: 14px; margin:0; }
+    .itemSub{ margin: 4px 0 0; color: var(--muted); font-size: 12px; font-weight: 900; }
+
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .tiny{ font-size: 11px; color: var(--muted); font-weight: 900; }
+
+    .exportBar{ display:flex; gap: 10px; align-items:center; margin-top: 8px; }
+    .month{
+      width: 150px;
+      min-width: 150px;
+      border-radius: 12px;
+      border: 1px solid #d8dee9;
+      padding: 12px 10px;
+      font-weight: 900;
+      font-size: 13px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+
+    /* CONFIRM MODAL */
+    .modalBack{
+      position: fixed; inset:0;
+      background: rgba(15,23,42,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 9999;
+    }
+    .modal{
+      width: min(420px, 100%);
+      background:#fff;
+      border-radius: 18px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.22);
+      overflow:hidden;
+      border: 1px solid rgba(15,23,42,.08);
+    }
+    .modalHead{
+      padding: 14px 14px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e7edf6;
+      font-weight: 1000;
+    }
+    .modalBody{ padding: 14px; }
+    .modalMsg{
+      margin:0;
+      font-size: 14px;
+      font-weight: 900;
+      color:#0f172a;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .modalActions{
+      display:flex;
+      gap: 10px;
+      padding: 14px;
+      border-top: 1px solid #e7edf6;
+      background: #fff;
+    }
+
+    /* DRAWER */
+    .drawerBack{
+      position: fixed; inset:0;
+      background: rgba(15,23,42,.40);
+      display:none;
+      z-index: 9998;
+    }
+    .drawer{
+      position:absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: min(360px, 92vw);
+      background: #fff;
+      box-shadow: -18px 0 40px rgba(0,0,0,.18);
+      border-left: 1px solid rgba(15,23,42,.08);
+      display:flex;
+      flex-direction: column;
+    }
+    .drawerHead{
+      padding: 14px;
+      border-bottom: 1px solid #e7edf6;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      font-weight: 1000;
+    }
+    .drawerClose{
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      border:1px solid #e7edf6;
+      background:#f8fafc;
+      cursor:pointer;
+      font-weight: 1000;
+    }
+    .drawerBody{
+      padding: 14px;
+      overflow:auto;
+    }
+    .drawerGroupTitle{
+      font-size: 12px;
+      font-weight: 1000;
+      color:#64748b;
+      letter-spacing: .9px;
+      text-transform: uppercase;
+      margin: 10px 2px 10px;
+    }
+    .drawerBtn{
+      width:100%;
+      border-radius: 14px;
+      border:1px solid #e7edf6;
+      background:#fff;
+      padding: 12px 12px;
+      font-weight: 1000;
+      cursor:pointer;
+      text-align:left;
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      margin-bottom: 10px;
+    }
+    .drawerBtn:active{ transform: scale(.99); }
+    .chip{
+      font-size: 12px;
+      font-weight: 1000;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background:#f1f5f9;
+      color:#334155;
+      border:1px solid #e7edf6;
+      white-space:nowrap;
+    }
+
+    /* FORM MODAL */
+    .formRow{ margin-top: 10px; }
+    .label{
+      display:block;
+      font-size: 12px;
+      font-weight: 1000;
+      color:#64748b;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .formActions{ display:flex; gap:10px; margin-top: 12px; }
+    .smallBtn{
+      width: 100%;
+      border:0;
+      border-radius: 12px;
+      padding: 12px 12px;
+      font-weight: 1000;
+      cursor:pointer;
+      color:#fff;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+    }
+    .smallBtn:active{ transform: scale(.99); }
+  </style>
+</head>
+
+<body>
+  <div class="phone">
+    <div class="card">
+      <div class="header">
+        <div class="hamb" id="btnHamb" title="Menu">
+          <div class="hambLines"><span></span><span></span><span></span></div>
+        </div>
+
+        <h1 class="title">MERCHANDISER LOG</h1>
+        <p class="now mono" id="nowText">--</p>
+        <div class="pill" id="modePill">MIMO PRACOVNÍ DOBU</div>
+      </div>
+
+      <div class="content">
+        <div class="sectionTitle">PRACOVNÍ SMĚNA</div>
+        <div class="row">
+          <button class="btn green" id="btnShiftStart">PŘÍCHOD</button>
+          <button class="btn red" id="btnShiftEnd">ODCHOD</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="sectionTitle">NÁVŠTĚVA PRODEJNY</div>
+        <div class="fieldRow">
+          <input class="input" id="storeName" placeholder="Název prodejny (např. Albert Anděl)" />
+        </div>
+
+        <div style="height:10px"></div>
+        <div class="row">
+          <button class="btn blue" id="btnStoreIn">VSTUP NA<br/>PRODEJNU</button>
+          <button class="btn yellow" id="btnStoreOut">ODCHOD Z<br/>PRODEJNY</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="exportBar">
+          <button class="btn navy" id="btnExport">⬇ Stáhnout přehled (CSV)</button>
+          <input class="month" id="monthPick" type="month" />
+        </div>
+
+        <div style="height:10px"></div>
+        <div class="status" id="status">Stav: připraveno.</div>
+
+        <div class="divider"></div>
+
+        <div class="sectionTitle">DNEŠNÍ AKTIVITA</div>
+        <div class="activity" id="activity"></div>
+
+        <div class="tiny">
+          Data jsou uložená jen v telefonu (localStorage). GPS funguje jen na HTTPS + s povolenou polohou.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div class="modalBack" id="modalBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHead" id="modalTitle">Potvrzení</div>
+      <div class="modalBody">
+        <p class="modalMsg" id="modalMsg">--</p>
+      </div>
+      <div class="modalActions">
+        <button class="btn green" id="modalYes">ANO</button>
+        <button class="btn red" id="modalNo">NE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawerBack" id="drawerBack" aria-hidden="true">
+    <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawerHead">
+        <div id="drawerTitle">MENU</div>
+        <button class="drawerClose" id="drawerClose">✕</button>
+      </div>
+      <div class="drawerBody">
+        <div class="drawerGroupTitle">Docházka</div>
+
+        <button class="drawerBtn" id="btnTraining">
+          <span>Školení (placené)</span>
+          <span class="chip">od–do</span>
+        </button>
+
+        <button class="drawerBtn" id="btnSick">
+          <span>Nemoc (neplacená)</span>
+          <span class="chip">od–do</span>
+        </button>
+
+        <button class="drawerBtn" id="btnVacation">
+          <span>Dovolená</span>
+          <span class="chip">dny</span>
+        </button>
+
+        <div class="drawerGroupTitle">Servis</div>
+        <button class="drawerBtn" id="btnClearToday">
+          <span>Vymazat dnešní záznam</span>
+          <span class="chip">opatrně</span>
+        </button>
+
+        <button class="drawerBtn" id="btnClearAll">
+          <span>Vymazat všechna data</span>
+          <span class="chip">nukleárně</span>
+        </button>
+
+        <div class="tiny">Tip: po větších úpravách PWA někdy pomůže “Vymazat data webu” v Chrome.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form modal (re-uses modalBack/modal layout) -->
+  <div class="modalBack" id="formBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <div class="modalHead" id="formTitle">Formulář</div>
+      <div class="modalBody" id="formBody"></div>
+      <div class="modalActions" id="formActions"></div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ------------------ STORAGE MODEL ------------------
+  // v3:
+  // { days: { "YYYY-MM-DD": { sessions:[], trainings:[], sickness:[], vacationDays:[] } } }
+  //
+  // Session: { start:Point, end:Point|null, visits:Visit[] }
+  // Visit: { storeName, in:Point, out:Point|null }
+  // Training: { startTs, endTs, minutes }
+  // Sickness: { startTs, endTs, minutes }  (uložené po dnech, i když zadáš rozsah přes víc dní)
+  // vacationDays: ["YYYY-MM-DD", ...]
+
+  const STORAGE_KEY = "merchandiser_log_v3";
+
+  const elNow = document.getElementById("nowText");
+  const elPill = document.getElementById("modePill");
+  const elStatus = document.getElementById("status");
+  const elActivity = document.getElementById("activity");
+
+  const btnShiftStart = document.getElementById("btnShiftStart");
+  const btnShiftEnd = document.getElementById("btnShiftEnd");
+  const btnStoreIn = document.getElementById("btnStoreIn");
+  const btnStoreOut = document.getElementById("btnStoreOut");
+  const btnExport = document.getElementById("btnExport");
+  const inpStore = document.getElementById("storeName");
+  const monthPick = document.getElementById("monthPick");
+
+  // confirm modal
+  const modalBack = document.getElementById("modalBack");
+  const modalMsg = document.getElementById("modalMsg");
+  const modalYes = document.getElementById("modalYes");
+  const modalNo = document.getElementById("modalNo");
+
+  // drawer
+  const btnHamb = document.getElementById("btnHamb");
+  const drawerBack = document.getElementById("drawerBack");
+  const drawerClose = document.getElementById("drawerClose");
+  const btnTraining = document.getElementById("btnTraining");
+  const btnSick = document.getElementById("btnSick");
+  const btnVacation = document.getElementById("btnVacation");
+  const btnClearToday = document.getElementById("btnClearToday");
+  const btnClearAll = document.getElementById("btnClearAll");
+
+  // form modal
+  const formBack = document.getElementById("formBack");
+  const formTitle = document.getElementById("formTitle");
+  const formBody = document.getElementById("formBody");
+  const formActions = document.getElementById("formActions");
+
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  function fmtDate(ts){
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  }
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  }
+  function fmtDateTime(ts){ return `${fmtDate(ts)} ${fmtTime(ts)}`; }
+
+  function todayKey(){
+    const d = new Date();
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return { days:{} };
+      const data = JSON.parse(raw);
+      if(!data || typeof data !== "object") return { days:{} };
+      if(!data.days || typeof data.days !== "object") data.days = {};
+      return data;
+    }catch{
+      return { days:{} };
+    }
+  }
+  function save(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function ensureDay(data, key){
+    if(!data.days[key]) data.days[key] = { sessions:[], trainings:[], sickness:[], vacationDays:[] };
+    const d = data.days[key];
+    if(!Array.isArray(d.sessions)) d.sessions = [];
+    if(!Array.isArray(d.trainings)) d.trainings = [];
+    if(!Array.isArray(d.sickness)) d.sickness = [];
+    if(!Array.isArray(d.vacationDays)) d.vacationDays = [];
+    return d;
+  }
+
+  function setStatus(msg){
+    elStatus.textContent = "Stav: " + msg;
+  }
+
+  // ------------------ CONFIRM MODAL ------------------
+  function confirmAction(message){
+    return new Promise((resolve) => {
+      modalMsg.textContent = message;
+      modalBack.style.display = "flex";
+      modalBack.setAttribute("aria-hidden","false");
+
+      const cleanup = () => {
+        modalBack.style.display = "none";
+        modalBack.setAttribute("aria-hidden","true");
+        modalYes.onclick = null;
+        modalNo.onclick = null;
+        modalBack.onclick = null;
+      };
+
+      modalYes.onclick = () => { cleanup(); resolve(true); };
+      modalNo.onclick  = () => { cleanup(); resolve(false); };
+
+      modalBack.onclick = (e) => {
+        if(e.target === modalBack){
+          cleanup(); resolve(false);
+        }
+      };
+    });
+  }
+
+  // ------------------ FORM MODAL ------------------
+  function openForm({title, bodyHtml, buttons}){
+    // buttons: [{text, cls, onClick}]
+    formTitle.textContent = title;
+    formBody.innerHTML = bodyHtml;
+    formActions.innerHTML = "";
+
+    buttons.forEach(b => {
+      const btn = document.createElement("button");
+      btn.className = b.cls || "btn gray";
+      btn.textContent = b.text;
+      btn.onclick = async () => { await b.onClick?.(); };
+      formActions.appendChild(btn);
+    });
+
+    formBack.style.display = "flex";
+    formBack.setAttribute("aria-hidden","false");
+
+    formBack.onclick = (e) => {
+      if(e.target === formBack) closeForm();
+    };
+  }
+  function closeForm(){
+    formBack.style.display = "none";
+    formBack.setAttribute("aria-hidden","true");
+    formBack.onclick = null;
+  }
+  function $id(id){ return document.getElementById(id); }
+
+  // ------------------ DRAWER ------------------
+  function openDrawer(){
+    drawerBack.style.display = "block";
+    drawerBack.setAttribute("aria-hidden","false");
+  }
+  function closeDrawer(){
+    drawerBack.style.display = "none";
+    drawerBack.setAttribute("aria-hidden","true");
+  }
+
+  // ------------------ GEO ------------------
+  function getGeo(){
+    return new Promise((resolve) => {
+      if(!navigator.geolocation){
+        resolve({ ok:false, err:"Geolocation není podporovaný." });
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({
+          ok:true,
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          acc: pos.coords.accuracy
+        }),
+        (err) => resolve({ ok:false, err: err?.message || "GPS chyba" }),
+        { enableHighAccuracy:true, timeout: 12000, maximumAge: 0 }
+      );
+    });
+  }
+
+  async function capturePoint(){
+    const ts = Date.now();
+    const geo = await getGeo();
+    return {
+      ts,
+      lat: geo.ok ? geo.lat : null,
+      lon: geo.ok ? geo.lon : null,
+      acc: geo.ok ? geo.acc : null,
+      geoOk: geo.ok,
+      geoErr: geo.ok ? null : geo.err
+    };
+  }
+
+  // ------------------ HELPERS ------------------
+  function minutesDiff(aTs, bTs){
+    if(aTs == null || bTs == null) return null;
+    if(bTs < aTs) return null;
+    return Math.floor((bTs - aTs) / 60000);
+  }
+  function hm(min){
+    if(min == null) return "";
+    const h = Math.floor(min/60);
+    const m = min%60;
+    return `${h} h ${pad2(m)} m`;
+  }
+
+  function activeSession(day){
+    const s = day.sessions;
+    if(!s.length) return null;
+    const last = s[s.length-1];
+    if(last && last.start && !last.end) return last;
+    return null;
+  }
+  function activeVisit(session){
+    if(!session) return null;
+    const v = session.visits || [];
+    if(!v.length) return null;
+    const last = v[v.length-1];
+    if(last && last.in && !last.out) return last;
+    return null;
+  }
+
+  function gpsText(p){
+    const has = (p?.lat != null && p?.lon != null);
+    if(!has) return "bez GPS";
+    const acc = (p.acc != null) ? `±${Math.round(p.acc)}m` : "±?";
+    return `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)} (${acc})`;
+  }
+
+  function lockUI(lock){
+    btnShiftStart.disabled = lock;
+    btnShiftEnd.disabled = lock;
+    btnStoreIn.disabled = lock;
+    btnStoreOut.disabled = lock;
+    btnExport.disabled = lock;
+    inpStore.disabled = lock;
+    monthPick.disabled = lock;
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+
+  function dtLocalValue(ts){
+    const d = new Date(ts);
+    const yyyy = d.getFullYear();
+    const mm = pad2(d.getMonth()+1);
+    const dd = pad2(d.getDate());
+    const hh = pad2(d.getHours());
+    const mi = pad2(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  }
+
+  function splitRangeByDay(startTs, endTs){
+    // vrací { key: "YYYY-MM-DD", startTs, endTs }[]
+    const out = [];
+    let cur = startTs;
+
+    while(cur < endTs){
+      const curDate = new Date(cur);
+      const dayKey = fmtDate(cur);
+      const endOfDay = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate(), 23,59,59,999).getTime();
+      const segEnd = Math.min(endTs, endOfDay);
+      out.push({ key: dayKey, startTs: cur, endTs: segEnd });
+      cur = segEnd + 1;
+    }
+    return out;
+  }
+
+  // ------------------ CORE ACTIONS ------------------
+  async function startShift(){
+    const ok = await confirmAction("Přejete si potvrdit příchod do práce?");
+    if(!ok) return;
+
+    const data = load();
+    const day = ensureDay(data, todayKey());
+
+    const sActive = activeSession(day);
+    if(sActive){
+      setStatus("směna už běží (nejdřív dej odchod).");
+      render();
+      return;
+    }
+
+    lockUI(true);
+    setStatus("ukládám příchod…");
+
+    const p = await capturePoint();
+    day.sessions.push({ start: { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc }, end: null, visits: [] });
+    save(data);
+
+    setStatus(p.geoOk ? "příchod uložen ✅ (s GPS)" : `příchod uložen ✅ (bez GPS: ${p.geoErr})`);
+    lockUI(false);
+    render();
+  }
+
+  async function endShift(){
+    const ok = await confirmAction("Přejete si potvrdit odchod z práce?");
+    if(!ok) return;
+
+    const data = load();
+    const day = ensureDay(data, todayKey());
+    const s = activeSession(day);
+
+    if(!s){
+      setStatus("žádná směna neběží.");
+      render();
+      return;
+    }
+    if(activeVisit(s)){
+      setStatus("nejdřív ukonči návštěvu prodejny.");
+      alert("Nejdřív ukonči návštěvu prodejny (odchod z prodejny).");
+      render();
+      return;
+    }
+
+    lockUI(true);
+    setStatus("ukládám odchod…");
+
+    const p = await capturePoint();
+    s.end = { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc };
+    save(data);
+
+    const workMin = minutesDiff(s.start?.ts, s.end?.ts);
+    setStatus(p.geoOk ? `odchod uložen ✅ (celkem ${hm(workMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
+    lockUI(false);
+    render();
+  }
+
+  async function storeIn(){
+    const data = load();
+    const day = ensureDay(data, todayKey());
+    const s = activeSession(day);
+
+    if(!s){
+      alert("Nejdřív zahaj směnu (Příchod).");
+      return;
+    }
+    if(activeVisit(s)){
+      alert("Už máš aktivní návštěvu. Nejdřív dej odchod z prodejny.");
+      return;
+    }
+
+    const name = (inpStore.value || "").trim();
+    if(!name){
+      alert("Zadej název prodejny.");
+      inpStore.focus();
+      return;
+    }
+
+    const ok = await confirmAction(`Přejete si potvrdit VSTUP na prodejnu?\n\nProdejna: ${name}`);
+    if(!ok) return;
+
+    lockUI(true);
+    setStatus("ukládám vstup na prodejnu…");
+
+    const p = await capturePoint();
+    s.visits = Array.isArray(s.visits) ? s.visits : [];
+    s.visits.push({
+      storeName: name,
+      in: { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc },
+      out: null
+    });
+    save(data);
+
+    setStatus(p.geoOk ? "vstup uložen ✅ (s GPS)" : `vstup uložen ✅ (bez GPS: ${p.geoErr})`);
+    lockUI(false);
+    render();
+  }
+
+  async function storeOut(){
+    const data = load();
+    const day = ensureDay(data, todayKey());
+    const s = activeSession(day);
+
+    if(!s){
+      alert("Nejdřív zahaj směnu (Příchod).");
+      return;
+    }
+
+    const v = activeVisit(s);
+    if(!v){
+      alert("Žádná aktivní návštěva není otevřená.");
+      return;
+    }
+
+    const ok = await confirmAction(`Přejete si potvrdit ODCHOD z prodejny?\n\nProdejna: ${v.storeName || "(bez názvu)"}`);
+    if(!ok) return;
+
+    lockUI(true);
+    setStatus("ukládám odchod z prodejny…");
+
+    const p = await capturePoint();
+    v.out = { ts:p.ts, lat:p.lat, lon:p.lon, acc:p.acc };
+    save(data);
+
+    const vMin = minutesDiff(v.in?.ts, v.out?.ts);
+    setStatus(p.geoOk ? `odchod uložen ✅ (návštěva ${hm(vMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
+    lockUI(false);
+    render();
+  }
+
+  // ------------------ MENU FEATURES ------------------
+  function openTrainingForm(){
+    closeDrawer();
+    const now = Date.now();
+    const startDefault = dtLocalValue(now);
+    const endDefault = dtLocalValue(now + 60*60000);
+
+    openForm({
+      title: "Školení (placené)",
+      bodyHtml: `
+        <div class="formRow">
+          <label class="label" for="trStart">Od</label>
+          <input class="input" type="datetime-local" id="trStart" value="${startDefault}">
+        </div>
+        <div class="formRow">
+          <label class="label" for="trEnd">Do</label>
+          <input class="input" type="datetime-local" id="trEnd" value="${endDefault}">
+        </div>
+        <div class="tiny" style="margin-top:10px">
+          Školení se přičítá do placeného času. Pokud zasahuje přes půlnoc, automaticky se rozdělí do dní.
+        </div>
+      `,
+      buttons: [
+        { text:"Uložit", cls:"btn green", onClick: async () => {
+          const ok = await confirmAction("Potvrdit uložení školení?");
+          if(!ok) return;
+
+          const s = $id("trStart").value;
+          const e = $id("trEnd").value;
+          const startTs = Date.parse(s);
+          const endTs = Date.parse(e);
+
+          if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
+            alert("Neplatný časový rozsah.");
+            return;
+          }
+
+          const data = load();
+          const segments = splitRangeByDay(startTs, endTs);
+          for(const seg of segments){
+            const day = ensureDay(data, seg.key);
+            const mins = minutesDiff(seg.startTs, seg.endTs);
+            day.trainings.push({ startTs: seg.startTs, endTs: seg.endTs, minutes: mins ?? 0 });
+          }
+          save(data);
+          closeForm();
+          setStatus("školení uloženo ✅");
+          render();
+        }},
+        { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
+      ]
+    });
+  }
+
+  function openSickForm(){
+    closeDrawer();
+    const now = Date.now();
+    const startDefault = dtLocalValue(now);
+    const endDefault = dtLocalValue(now + 8*60*60000);
+
+    openForm({
+      title: "Nemoc (neplacená)",
+      bodyHtml: `
+        <div class="formRow">
+          <label class="label" for="siStart">Od</label>
+          <input class="input" type="datetime-local" id="siStart" value="${startDefault}">
+        </div>
+        <div class="formRow">
+          <label class="label" for="siEnd">Do</label>
+          <input class="input" type="datetime-local" id="siEnd" value="${endDefault}">
+        </div>
+        <div class="tiny" style="margin-top:10px">
+          Nemoc se NEpřičítá do odměny. Rozsah přes více dní se automaticky rozdělí.
+        </div>
+      `,
+      buttons: [
+        { text:"Uložit", cls:"btn green", onClick: async () => {
+          const ok = await confirmAction("Potvrdit uložení nemoci?");
+          if(!ok) return;
+
+          const s = $id("siStart").value;
+          const e = $id("siEnd").value;
+          const startTs = Date.parse(s);
+          const endTs = Date.parse(e);
+
+          if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
+            alert("Neplatný časový rozsah.");
+            return;
+          }
+
+          const data = load();
+          const segments = splitRangeByDay(startTs, endTs);
+          for(const seg of segments){
+            const day = ensureDay(data, seg.key);
+            const mins = minutesDiff(seg.startTs, seg.endTs);
+            day.sickness.push({ startTs: seg.startTs, endTs: seg.endTs, minutes: mins ?? 0 });
+          }
+          save(data);
+          closeForm();
+          setStatus("nemoc uložena ✅");
+          render();
+        }},
+        { text:"Zrušit", cls:"btn red", onClick: async () => closeForm() }
+      ]
+    });
+  }
+
+  function openVacationForm(){
+    closeDrawer();
+    const today = todayKey();
+
+    const data = load();
+    const day = ensureDay(data, today);
+    const current = new Set(day.vacationDays || []);
+
+    openForm({
+      title: "Dovolená",
+      bodyHtml: `
+        <div class="formRow">
+          <label class="label" for="vacDay">Vyber den</label>
+          <input class="input" type="date" id="vacDay" value="${today}">
+        </div>
+
+        <div class="formRow">
+          <button class="smallBtn green" id="vacAdd">Přidat den dovolené</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="label">Dny dovolené (uložené)</div>
+        <div id="vacList" class="tiny"></div>
+
+        <div class="tiny" style="margin-top:10px">
+          Dovolená se v exportu počítá jako 8 hodin placeného času za den.
+        </div>
+      `,
+      buttons: [
+        { text:"Hotovo", cls:"btn navy", onClick: async () => { closeForm(); render(); } }
+      ]
+    });
+
+    const renderVacList = () => {
+      const listEl = $id("vacList");
+      const arr = Array.from(current).sort((a,b)=>a.localeCompare(b));
+      if(!arr.length){
+        listEl.innerHTML = "Zatím žádné dny dovolené.";
+        return;
+      }
+      listEl.innerHTML = arr.map(d => `
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid #e7edf6;background:#fbfdff;border-radius:12px;padding:10px 12px;margin-top:8px;">
+          <span class="mono">${escapeHtml(d)}</span>
+          <button data-day="${escapeHtml(d)}" style="border:0;border-radius:10px;padding:8px 10px;font-weight:1000;cursor:pointer;background:#fee2e2;color:#991b1b;">
+            Odebrat
+          </button>
+        </div>
+      `).join("");
+
+      listEl.querySelectorAll("button[data-day]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const d = btn.getAttribute("data-day");
+          const ok = await confirmAction(`Odebrat dovolenou pro den ${d}?`);
+          if(!ok) return;
+          current.delete(d);
+          persistVacation(current);
+          renderVacList();
+          setStatus("dovolená upravena ✅");
+        });
+      });
+    };
+
+    const persistVacation = (setDays) => {
+      const data2 = load();
+      // ukládáme "globálně" přes days (nejjednodušší): každý den si nese vlastní vacationDays seznam
+      // => aby to bylo konzistentní, uložíme seznam do dneška jako "master"
+      const master = ensureDay(data2, todayKey());
+      master.vacationDays = Array.from(setDays);
+
+      // a zároveň rozkopírujeme flag do jednotlivých dní (aby export byl rychlý a přímočarý)
+      // (v praxi stačí master + kontrola v exportu, ale takhle to máš stabilní i po ručních editacích)
+      const all = Array.from(setDays);
+      for(const dk of all){
+        const drec = ensureDay(data2, dk);
+        // keep only itself as marker
+        drec.vacationDays = [dk];
+      }
+      save(data2);
+    };
+
+    $id("vacAdd").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const dk = $id("vacDay").value;
+      if(!dk) return;
+      const ok = await confirmAction(`Přidat dovolenou pro den ${dk}?`);
+      if(!ok) return;
+      current.add(dk);
+      persistVacation(current);
+      renderVacList();
+      setStatus("dovolená uložena ✅");
+    });
+
+    renderVacList();
+  }
+
+  async function clearToday(){
+    closeDrawer();
+    const ok = await confirmAction("Opravdu vymazat dnešní záznam? (směny, prodejny, školení, nemoc, dovolená pro dnešek)");
+    if(!ok) return;
+
+    const data = load();
+    const k = todayKey();
+    delete data.days[k];
+    save(data);
+    setStatus("dnešek vymazán 🧼");
+    render();
+  }
+
+  async function clearAll(){
+    closeDrawer();
+    const ok = await confirmAction("Opravdu vymazat VŠECHNA data v telefonu? (nenávratně)");
+    if(!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    setStatus("všechna data vymazána 🧼");
+    render();
+  }
+
+  // ------------------ EXPORT CSV ------------------
+  function monthRange(y, m){
+    const from = new Date(y, m-1, 1, 0,0,0,0).getTime();
+    const to = new Date(y, m, 0, 23,59,59,999).getTime();
+    return { from, to };
+  }
+  function parseMonthValue(v){
+    if(!v) return null;
+    const [y,m] = v.split("-").map(Number);
+    if(!y || !m) return null;
+    return { y, m };
+  }
+  function csvEscape(value, sep){
+    const s = String(value ?? "");
+    const needs = s.includes(sep) || s.includes('"') || s.includes("\n");
+    const v = s.replaceAll('"','""');
+    return needs ? `"${v}"` : v;
+  }
+
+  function exportCsv(){
+    const data = load();
+    const sel = parseMonthValue(monthPick.value);
+    if(!sel){
+      alert("Vyber měsíc pro export.");
+      return;
+    }
+
+    const sep = ",";
+    const { from, to } = monthRange(sel.y, sel.m);
+
+    const dayKeys = Object.keys(data.days || {})
+      .filter(k => {
+        const [yy,mm,dd] = k.split("-").map(Number);
+        if(!yy || !mm || !dd) return false;
+        const ts = new Date(yy, mm-1, dd, 12,0,0,0).getTime();
+        return ts >= from && ts <= to;
+      })
+      .sort((a,b) => a.localeCompare(b));
+
+    const head = [
+      "row_type",
+      "date",
+
+      "work_minutes",
+      "training_minutes",
+      "vacation_minutes",
+      "sick_minutes",
+      "paid_minutes",
+
+      "day_visit_count",
+
+      "session_index",
+      "session_start",
+      "session_end",
+      "session_work_minutes",
+
+      "visit_index",
+      "store_name",
+      "store_in",
+      "store_out",
+      "visit_minutes",
+
+      "event_start",
+      "event_end",
+      "event_minutes"
+    ];
+
+    const lines = [];
+    lines.push(head.join(sep));
+
+    for(const dk of dayKeys){
+      const day = ensureDay(data, dk);
+      const sessions = Array.isArray(day.sessions) ? day.sessions : [];
+
+      let workMin = 0;
+      let visitCount = 0;
+
+      for(const s of sessions){
+        const vList = Array.isArray(s.visits) ? s.visits : [];
+        visitCount += vList.length;
+
+        if(s.start?.ts && s.end?.ts){
+          const wm = minutesDiff(s.start.ts, s.end.ts);
+          if(wm != null) workMin += wm;
+        }
+      }
+
+      const trainingMin = (day.trainings || []).reduce((a,x)=>a+(x.minutes||0),0);
+      const sickMin = (day.sickness || []).reduce((a,x)=>a+(x.minutes||0),0);
+      const vacationMin = (day.vacationDays && day.vacationDays.includes(dk)) ? 480 : 0; // 8h
+      const paidMin = workMin + trainingMin + vacationMin;
+
+      // DAY_TOTAL row
+      lines.push([
+        "DAY_TOTAL",
+        dk,
+
+        workMin || "",
+        trainingMin || "",
+        vacationMin || "",
+        sickMin || "",
+        paidMin || "",
+
+        visitCount,
+
+        "",
+        "",
+        "",
+        "",
+
+        "",
+        "",
+        "",
+        "",
+        "",
+
+        "",
+        "",
+        ""
+      ].map(x => csvEscape(x, sep)).join(sep));
+
+      // event rows
+      (day.trainings || []).forEach((t) => {
+        lines.push([
+          "TRAINING", dk,
+          "", "", "", "", "",
+          "",
+          "", "", "", "",
+          "", "", "", "", "",
+          fmtDateTime(t.startTs), fmtDateTime(t.endTs), t.minutes ?? ""
+        ].map(x => csvEscape(x, sep)).join(sep));
+      });
+
+      (day.sickness || []).forEach((s) => {
+        lines.push([
+          "SICK", dk,
+          "", "", "", "", "",
+          "",
+          "", "", "", "",
+          "", "", "", "", "",
+          fmtDateTime(s.startTs), fmtDateTime(s.endTs), s.minutes ?? ""
+        ].map(x => csvEscape(x, sep)).join(sep));
+      });
+
+      if(vacationMin){
+        lines.push([
+          "VACATION", dk,
+          "", "", "", "", "",
+          "",
+          "", "", "", "",
+          "", "", "", "", "",
+          `${dk} 00:00:00`, `${dk} 23:59:59`, 480
+        ].map(x => csvEscape(x, sep)).join(sep));
+      }
+
+      // session + visit rows
+      sessions.forEach((s, si) => {
+        const sStartTs = s.start?.ts ?? null;
+        const sEndTs = s.end?.ts ?? null;
+        const sWorkMin = (sStartTs && sEndTs) ? minutesDiff(sStartTs, sEndTs) : null;
+
+        lines.push([
+          "SESSION", dk,
+          "", "", "", "", "",
+          "",
+          (si+1),
+          sStartTs ? fmtDateTime(sStartTs) : "",
+          sEndTs ? fmtDateTime(sEndTs) : "",
+          sWorkMin ?? "",
+          "", "", "", "", "",
+          "", "", ""
+        ].map(x => csvEscape(x, sep)).join(sep));
+
+        const vList = Array.isArray(s.visits) ? s.visits : [];
+        vList.forEach((v, vi) => {
+          const vInTs = v?.in?.ts ?? null;
+          const vOutTs = v?.out?.ts ?? null;
+          const vMin = (vInTs && vOutTs) ? minutesDiff(vInTs, vOutTs) : null;
+
+          lines.push([
+            "VISIT", dk,
+            "", "", "", "", "",
+            "",
+            (si+1),
+            sStartTs ? fmtDateTime(sStartTs) : "",
+            sEndTs ? fmtDateTime(sEndTs) : "",
+            sWorkMin ?? "",
+            (vi+1),
+            v?.storeName ?? "",
+            vInTs ? fmtDateTime(vInTs) : "",
+            vOutTs ? fmtDateTime(vOutTs) : "",
+            vMin ?? "",
+            "", "", ""
+          ].map(x => csvEscape(x, sep)).join(sep));
+        });
+      });
+    }
+
+    const csv = "\uFEFF" + lines.join("\n"); // BOM pro Excel
+    const blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const fname = `merchandiser_log_${sel.y}_${pad2(sel.m)}.csv`;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    setStatus("export hotovej ✅");
+  }
+
+  // ------------------ RENDER ------------------
+  function updateNow(){
+    const d = new Date();
+    elNow.textContent = `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}  ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  }
+
+  function render(){
+    updateNow();
+
+    const data = load();
+    const day = ensureDay(data, todayKey());
+
+    const s = activeSession(day);
+    const v = activeVisit(s);
+
+    if(!s) elPill.textContent = "MIMO PRACOVNÍ DOBU";
+    else if(s && v) elPill.textContent = "NA PRODEJNĚ";
+    else elPill.textContent = "VE SMĚNĚ";
+
+    // requested behavior:
+    btnShiftStart.disabled = !!s;
+    btnShiftEnd.disabled = !s;
+
+    btnStoreIn.disabled = !s || !!v;
+    btnStoreOut.disabled = !s || !v;
+
+    // todays activity: sessions + visits + training/sick/vac
+    const items = [];
+    const sessions = Array.isArray(day.sessions) ? day.sessions : [];
+
+    sessions.forEach((sess, i) => {
+      items.push({
+        tag: `SMĚNA #${i+1}`,
+        title: "Příchod",
+        sub: `${sess.start?.ts ? fmtDateTime(sess.start.ts) : "—"} • GPS: ${gpsText(sess.start)}`
+      });
+
+      const vList = Array.isArray(sess.visits) ? sess.visits : [];
+      vList.forEach((vv, j) => {
+        const inTs = vv?.in?.ts;
+        const outTs = vv?.out?.ts;
+        const dur = (inTs && outTs) ? hm(minutesDiff(inTs, outTs)) : (inTs ? "probíhá…" : "");
+        items.push({
+          tag: `PRODEJNA ${i+1}.${j+1}`,
+          title: vv?.storeName || "(bez názvu)",
+          sub: `${inTs ? fmtDateTime(inTs) : "—"} → ${outTs ? fmtDateTime(outTs) : "—"} • ${dur}`
+        });
+      });
+
+      if(sess.end?.ts){
+        const w = minutesDiff(sess.start?.ts, sess.end.ts);
+        items.push({
+          tag: `SMĚNA #${i+1}`,
+          title: "Odchod",
+          sub: `${fmtDateTime(sess.end.ts)} • Celkem: ${hm(w)}`
+        });
+      } else {
+        items.push({
+          tag: `SMĚNA #${i+1}`,
+          title: "Běží…",
+          sub: "Směna není uzavřená (čeká na Odchod)."
+        });
+      }
+    });
+
+    (day.trainings || []).forEach((t, i) => {
+      items.push({
+        tag: `ŠKOLENÍ #${i+1}`,
+        title: "Školení (placené)",
+        sub: `${fmtDateTime(t.startTs)} → ${fmtDateTime(t.endTs)} • ${hm(t.minutes)}`
+      });
+    });
+
+    (day.sickness || []).forEach((sick, i) => {
+      items.push({
+        tag: `NEMOC #${i+1}`,
+        title: "Nemoc (neplacená)",
+        sub: `${fmtDateTime(sick.startTs)} → ${fmtDateTime(sick.endTs)} • ${hm(sick.minutes)}`
+      });
+    });
+
+    if(day.vacationDays && day.vacationDays.includes(todayKey())){
+      items.push({
+        tag: "DOVOLENÁ",
+        title: "Dovolená",
+        sub: "Celý den (8 hodin placených)"
+      });
+    }
+
+    if(!items.length){
+      elActivity.innerHTML = `<div class="tiny">Zatím nic. Klikni na PŘÍCHOD.</div>`;
+    } else {
+      elActivity.innerHTML = items.map(it => `
+        <div class="item">
+          <div class="itemTop">
+            <div>
+              <p class="itemTitle">${escapeHtml(it.title)}</p>
+              <p class="itemSub mono">${escapeHtml(it.sub)}</p>
+            </div>
+            <div class="tag">${escapeHtml(it.tag)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // month default
+    if(!monthPick.value){
+      const n = new Date();
+      monthPick.value = `${n.getFullYear()}-${pad2(n.getMonth()+1)}`;
+    }
+  }
+
+  // ------------------ WIRE ------------------
+  btnShiftStart.addEventListener("click", startShift);
+  btnShiftEnd.addEventListener("click", endShift);
+  btnStoreIn.addEventListener("click", storeIn);
+  btnStoreOut.addEventListener("click", storeOut);
+  btnExport.addEventListener("click", exportCsv);
+
+  btnHamb.addEventListener("click", openDrawer);
+  drawerClose.addEventListener("click", closeDrawer);
+  drawerBack.addEventListener("click", (e) => { if(e.target === drawerBack) closeDrawer(); });
+
+  btnTraining.addEventListener("click", openTrainingForm);
+  btnSick.addEventListener("click", openSickForm);
+  btnVacation.addEventListener("click", openVacationForm);
+
+  btnClearToday.addEventListener("click", clearToday);
+  btnClearAll.addEventListener("click", clearAll);
+
+  // service worker register + auto update
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+      try {
+        const reg = await navigator.serviceWorker.register("./sw.js");
+        reg.update();
+        reg.addEventListener("updatefound", () => {
+          const nw = reg.installing;
+          if(!nw) return;
+          nw.addEventListener("statechange", () => {
+            if (nw.state === "activated") location.reload();
+          });
+        });
+      } catch {}
+    });
+  }
+
+  // tick
+  render();
+  setInterval(updateNow, 1000);
+})();
+</script>
+</body>
+</html>
