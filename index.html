@@ -496,7 +496,9 @@
   // Training: { startTs, endTs, minutes }
   // Sickness: { startTs, endTs, minutes }  (uložené po dnech, i když zadáš rozsah přes víc dní)
   // vacationDays: ["YYYY-MM-DD", ...]
-
+const SUPABASE_URL = "TVŮJ_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "TVŮJ_SUPABASE_ANON_KEY";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const STORAGE_KEY = "merchandiser_log_v3";
 
   const elNow = document.getElementById("nowText");
