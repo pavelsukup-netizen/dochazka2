@@ -603,9 +603,10 @@
         <div class="tiny" id="loginMsg" style="margin-top:10px;color:#ef4444;display:none;"></div>
       </div>
       <div class="loginActions">
-        <button class="btn green" id="btnLogin">Přihlásit</button>
-        <button class="btn gray" id="btnLoginLater">Později</button>
-      </div>
+  <button class="btn green" id="btnLogin">Přihlásit</button>
+  <button class="btn navy" id="btnResetPass">Reset hesla</button>
+  <button class="btn gray" id="btnLoginLater">Později</button>
+</div>
     </div>
   </div>
 
@@ -672,6 +673,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   const loginMsg = document.getElementById("loginMsg");
   const btnLogin = document.getElementById("btnLogin");
   const btnLoginLater = document.getElementById("btnLoginLater");
+  const btnResetPass = document.getElementById("btnResetPass");
 
   /******************************************************************
    * 2) HELPERS
@@ -1811,7 +1813,35 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       render();
     }
   });
+btnResetPass.addEventListener("click", async () => {
+  loginMsg.style.display = "none";
 
+  const email = (loginEmail.value || "").trim();
+  if(!email){
+    loginMsg.textContent = "Zadej email pro reset hesla.";
+    loginMsg.style.display = "block";
+    loginMsg.style.color = "#ef4444";
+    return;
+  }
+
+  btnResetPass.disabled = true;
+  try{
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://pavelsukup-netizen.github.io/dochazka/"
+    });
+    if(error) throw error;
+
+    loginMsg.style.color = "#16a34a";
+    loginMsg.textContent = "Hotovo ✅ Koukej do emailu (Reset password) a klikni na odkaz.";
+    loginMsg.style.display = "block";
+  }catch(e){
+    loginMsg.style.color = "#ef4444";
+    loginMsg.textContent = "Reset selhal: " + (e?.message || e);
+    loginMsg.style.display = "block";
+  }finally{
+    btnResetPass.disabled = false;
+  }
+});
   btnLoginLater.addEventListener("click", () => {
     showLoginOverlay(false);
   });
