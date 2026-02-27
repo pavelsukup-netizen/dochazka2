@@ -45,22 +45,28 @@
       background: linear-gradient(90deg, rgba(99,102,241,.0), rgba(99,102,241,.9), rgba(236,72,153,.9), rgba(34,197,94,.0));
       filter: drop-shadow(0 0 14px rgba(236,72,153,.35));
     }
-    .btn-glow-green { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(34,197,94,.20); }
-    .btn-glow-red   { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(239,68,68,.18); }
-    .btn-glow-blue  { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(59,130,246,.18); }
-    .btn-glow-amber { box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 26px rgba(245,158,11,.18); }
+
+    /* LEDs */
+    .dot{ width:10px; height:10px; border-radius:999px; background:#94a3b8; }
+    .dot.ok{ background:#22c55e; box-shadow: 0 0 14px rgba(34,197,94,.40); }
+    .dot.warn{ background:#f59e0b; box-shadow: 0 0 14px rgba(245,158,11,.35); }
+    .dot.bad{ background:#ef4444; box-shadow: 0 0 14px rgba(239,68,68,.30); }
+
+    /* Pulsing glow for active neon buttons */
+    @keyframes pulseGlow {
+      0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 10px var(--glow), 0 0 22px rgba(0,0,0,0); border-color: rgba(255,255,255,.12); }
+      50%  { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 18px var(--glow), 0 0 36px var(--glow2); border-color: rgba(255,255,255,.24); }
+      100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 10px var(--glow), 0 0 22px rgba(0,0,0,0); border-color: rgba(255,255,255,.12); }
+    }
+    .pulse-active{
+      animation: pulseGlow 1.6s ease-in-out infinite;
+    }
 
     /* overlay stacking */
     #drawerBack { z-index: 8000; }
     #formBack { z-index: 9000; }
     #modalBack { z-index: 10000; }
     #loginBack { z-index: 11000; }
-
-    /* dot states (keep JS logic) */
-    .dot{ width:10px; height:10px; border-radius:999px; background:#94a3b8; }
-    .dot.ok{ background:#22c55e; box-shadow: 0 0 14px rgba(34,197,94,.40); }
-    .dot.warn{ background:#f59e0b; box-shadow: 0 0 14px rgba(245,158,11,.35); }
-    .dot.bad{ background:#ef4444; box-shadow: 0 0 14px rgba(239,68,68,.30); }
   </style>
 </head>
 
@@ -72,7 +78,7 @@
 
       <div class="p-5">
         <div class="flex items-start justify-between gap-3">
-          <!-- Left: account shortcut (opens drawer account action in your logic) -->
+          <!-- Left: avatar -->
           <div class="flex flex-col items-center gap-2">
             <div class="h-14 w-14 rounded-2xl glass-soft flex items-center justify-center border border-slate-400/15">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="opacity-90">
@@ -80,7 +86,7 @@
                 <path d="M20 22a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
               </svg>
             </div>
-            <div class="text-[11px] font-extrabold tracking-widest uppercase text-slate-300">LOGIN</div>
+            <div class="text-[11px] font-extrabold tracking-widest uppercase text-slate-300">MERCH</div>
           </div>
 
           <!-- Center title -->
@@ -102,22 +108,20 @@
         </div>
 
         <!-- Status LED row -->
-<div class="mt-4 grid grid-cols-3 gap-3">
-  <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
-    <span id="gpsDot" class="h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_14px_rgba(244,63,94,.35)]"></span>
-    <span class="text-[11px] font-extrabold tracking-widest text-slate-200">GPS</span>
-  </div>
-
-  <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
-    <span id="onlineDot" class="h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_14px_rgba(244,63,94,.35)]"></span>
-    <span class="text-[11px] font-extrabold tracking-widest text-slate-200">ONLINE</span>
-  </div>
-
-  <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
-    <span class="dot" id="syncDot"></span>
-    <span class="text-[11px] font-extrabold tracking-widest text-slate-200">AUTH</span>
-  </div>
-</div>
+        <div class="mt-4 grid grid-cols-3 gap-3">
+          <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
+            <span id="gpsDot" class="h-2.5 w-2.5 rounded-full bg-amber-300 shadow-[0_0_14px_rgba(245,158,11,.35)]"></span>
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200">GPS</span>
+          </div>
+          <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
+            <span id="onlineDot" class="h-2.5 w-2.5 rounded-full bg-amber-300 shadow-[0_0_14px_rgba(245,158,11,.35)]"></span>
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200">ONLINE</span>
+          </div>
+          <div class="glass-soft rounded-2xl px-3 py-2 flex items-center justify-center gap-2 border border-slate-400/10">
+            <span class="dot" id="syncDot"></span>
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200">AUTH</span>
+          </div>
+        </div>
 
         <!-- Mode pill -->
         <div class="mt-4 flex justify-center">
@@ -135,116 +139,101 @@
       <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-3">PRACOVNÍ SMĚNA</div>
       <div class="grid grid-cols-2 gap-4">
         <button id="btnShiftStart"
-          class="rounded-2xl py-5 text-emerald-300 font-black tracking-widest bg-emerald-500/15 border border-emerald-400/20 btn-glow-green active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          class="rounded-2xl py-5 text-emerald-300 font-black tracking-widest bg-emerald-500/15 border border-emerald-400/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style="--glow: rgba(34,197,94,.45); --glow2: rgba(34,197,94,.20);">
           PŘÍCHOD
         </button>
         <button id="btnShiftEnd"
-          class="rounded-2xl py-5 text-rose-300 font-black tracking-widest bg-rose-500/12 border border-rose-400/20 btn-glow-red active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
+          class="rounded-2xl py-5 text-rose-300 font-black tracking-widest bg-rose-500/12 border border-rose-400/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style="--glow: rgba(244,63,94,.40); --glow2: rgba(244,63,94,.18);">
           ODCHOD
         </button>
       </div>
 
       <div class="my-5 h-px bg-slate-200/10"></div>
 
-      <!-- Store visit -->
-      <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-3">NÁVŠTĚVA PRODEJNY</div>
-      <input id="storeName"
-        class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25 disabled:opacity-50"
-        placeholder="Název prodejny (např. Albert Anděl)" />
+      <!-- NEW: Day/Work type buttons -->
+      <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase mb-3">TYP AKTIVITY</div>
 
-      <div class="mt-4 grid grid-cols-2 gap-4">
-        <button id="btnStoreIn"
-          class="rounded-2xl py-5 text-sky-200 font-black tracking-widest bg-sky-500/15 border border-sky-300/20 btn-glow-blue active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
-          VSTUP NA<br><span class="text-[10px] opacity-80">PRODEJNU</span>
-        </button>
-        <button id="btnStoreOut"
-          class="rounded-2xl py-5 text-amber-200 font-black tracking-widest bg-amber-400/15 border border-amber-200/20 btn-glow-amber active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
-          ODCHOD Z<br><span class="text-[10px] opacity-80">PRODEJNY</span>
-        </button>
-      </div>
-
-      <div class="my-5 h-px bg-slate-200/10"></div>
-
-      <!-- Export -->
-      <div class="grid grid-cols-[1fr_150px] gap-3 items-center">
-        <button id="btnExport"
-          class="rounded-2xl py-4 font-black tracking-widest bg-slate-950/40 border border-slate-400/15 hover:border-slate-200/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed">
-          <span class="inline-flex items-center justify-center gap-2">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="opacity-85">
-              <path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            Export CSV
-          </span>
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Home Office -->
+        <button id="btnHomeOffice"
+          class="rounded-2xl py-5 text-amber-200 font-black tracking-widest bg-amber-400/15 border border-amber-200/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style="--glow: rgba(245,158,11,.55); --glow2: rgba(245,158,11,.20);">
+          HOME<br><span class="text-[10px] opacity-80">OFFICE</span>
         </button>
 
-        <input id="monthPick" type="month"
-          class="rounded-2xl px-3 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25 disabled:opacity-50" />
+        <!-- Vacation -->
+        <button id="btnVacationMain"
+          class="rounded-2xl py-5 text-sky-200 font-black tracking-widest bg-sky-500/15 border border-sky-300/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style="--glow: rgba(56,189,248,.55); --glow2: rgba(56,189,248,.20);">
+          DOVO<br><span class="text-[10px] opacity-80">LENÁ</span>
+        </button>
+
+        <!-- Sick -->
+        <button id="btnSickMain"
+          class="rounded-2xl py-5 text-violet-200 font-black tracking-widest bg-violet-500/14 border border-violet-300/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style="--glow: rgba(167,139,250,.55); --glow2: rgba(167,139,250,.20);">
+          NEMOC
+        </button>
+
+        <!-- Training -->
+        <button id="btnTrainingMain"
+          class="rounded-2xl py-5 text-pink-200 font-black tracking-widest bg-pink-500/14 border border-pink-300/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style="--glow: rgba(236,72,153,.55); --glow2: rgba(236,72,153,.20);">
+          ŠKO<br><span class="text-[10px] opacity-80">LENÍ</span>
+        </button>
       </div>
 
-     <!-- Status (neon/glass) -->
-<div class="mt-4 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10">
-  <div class="flex items-center justify-between gap-3">
-    <div class="flex items-center gap-3">
-      <div class="h-10 w-10 rounded-2xl glass-soft border border-slate-200/10 flex items-center justify-center">
-        <!-- icon -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="opacity-90">
-          <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+      <!-- Status (neon/glass) -->
+      <div class="mt-4 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-2xl glass-soft border border-slate-200/10 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="opacity-90">
+                <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">STATUS</div>
+              <div class="text-sm font-black tracking-wide text-slate-100" id="statusText">Stav: připraveno.</div>
+            </div>
+          </div>
+
+          <div class="glass-soft rounded-full px-3 py-2 border border-slate-200/10 flex items-center gap-2">
+            <span class="text-[11px] font-extrabold tracking-widest text-slate-200" id="syncText">offline</span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">STATUS</div>
-        <div class="text-sm font-black tracking-wide text-slate-100" id="statusText">Stav: připraveno.</div>
-      </div>
-    </div>
-
-    <div class="glass-soft rounded-full px-3 py-2 border border-slate-200/10 flex items-center gap-2">
-      <span class="dot" id="syncDot"></span>
-      <span class="text-[11px] font-extrabold tracking-widest text-slate-200" id="syncText">offline</span>
-    </div>
-  </div>
-</div>
-
-      <!-- Activity -->
+      <!-- Activity collapsible -->
       <div class="mt-6 text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">DNEŠNÍ AKTIVITA</div>
+      <div class="mt-3 glass-soft rounded-2xl border border-slate-400/10 overflow-hidden">
+        <button id="activityToggle" class="w-full px-4 py-4 flex items-center justify-between gap-3 active:scale-[.99] transition">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-2xl glass-soft border border-slate-200/10 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="opacity-90">
+                <path d="M8 6h13M8 12h13M8 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3.5 6h.5M3.5 12h.5M3.5 18h.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="text-left">
+              <div class="text-sm font-black tracking-wide text-slate-100">
+                Aktivity: <span id="activityCount">0</span>
+              </div>
+              <div class="text-[11px] text-slate-400" id="activityHint">Klikni pro rozbalení detailu</div>
+            </div>
+          </div>
+          <svg id="activityArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" class="opacity-90 transition-transform">
+            <path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
 
-<!-- Collapsible Activity Panel -->
-<div class="mt-3 glass-soft rounded-2xl border border-slate-400/10 overflow-hidden">
-  <button id="activityToggle"
-    class="w-full px-4 py-4 flex items-center justify-between gap-3 active:scale-[.99] transition">
-    <div class="flex items-center gap-3">
-      <div class="h-10 w-10 rounded-2xl glass-soft border border-slate-200/10 flex items-center justify-center">
-        <!-- list icon -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="opacity-90">
-          <path d="M8 6h13M8 12h13M8 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M3.5 6h.5M3.5 12h.5M3.5 18h.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-        </svg>
+        <div id="activityList" class="px-4 pb-4 hidden"></div>
       </div>
-      <div class="text-left">
-        <div class="text-sm font-black tracking-wide text-slate-100">
-          Aktivity: <span id="activityCount">0</span>
-        </div>
-        <div class="text-[11px] text-slate-400" id="activityHint">
-          Klikni pro rozbalení detailu
-        </div>
-      </div>
-    </div>
-
-    <!-- arrow -->
-    <svg id="activityArrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
-      class="opacity-90 transition-transform">
-      <path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
-
-  <div id="activityList" class="px-4 pb-4 hidden">
-    <!-- sem JS vkládá seznam -->
-  </div>
-</div>
 
       <div class="mt-4 text-[11px] text-slate-500">
-        • Data se ukládají online na Supabase (po přihlášení). Když není signál, ukládá se do fronty a odešle se později.
+        • Data se synchronizují s cloudem automaticky. Když není signál, ukládá se do fronty a odešle se později.
       </div>
     </div>
 
@@ -261,10 +250,12 @@
         <p id="modalMsg" class="text-slate-200 font-semibold whitespace-pre-wrap">--</p>
       </div>
       <div class="px-5 py-4 border-t border-slate-200/10 flex gap-3">
-        <button id="modalYes" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition">
+        <button id="modalYes" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 active:scale-[.99] transition"
+          style="--glow: rgba(34,197,94,.45); --glow2: rgba(34,197,94,.20);">
           ANO
         </button>
-        <button id="modalNo" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition">
+        <button id="modalNo" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 active:scale-[.99] transition"
+          style="--glow: rgba(244,63,94,.40); --glow2: rgba(244,63,94,.18);">
           NE
         </button>
       </div>
@@ -282,22 +273,18 @@
       </div>
 
       <div class="p-5 space-y-3 overflow-auto h-[calc(100%-72px)]">
-        <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Docházka</div>
+        <!-- Export moved here -->
+        <div class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Export</div>
 
-        <button id="btnTraining" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
-          <span class="font-bold">Školení (placené)</span>
-          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">od–do</span>
-        </button>
-
-        <button id="btnSick" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
-          <span class="font-bold">Nemoc (neplacená)</span>
-          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">od–do</span>
-        </button>
-
-        <button id="btnVacation" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
-          <span class="font-bold">Dovolená</span>
-          <span class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-950/35 border border-slate-200/10">dny</span>
-        </button>
+        <div class="glass-soft rounded-2xl border border-slate-200/10 p-4">
+          <div class="text-[11px] text-slate-400 font-extrabold tracking-widest uppercase">Období</div>
+          <input id="monthPick" type="month"
+            class="mt-2 w-full rounded-2xl px-3 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25" />
+          <button id="btnExport"
+            class="mt-3 w-full rounded-2xl py-4 font-black tracking-widest bg-slate-950/40 border border-slate-400/15 hover:border-slate-200/20 active:scale-[.99] transition">
+            ⬇ Export CSV
+          </button>
+        </div>
 
         <div class="mt-4 text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Účet</div>
         <button id="btnAccount" class="w-full glass-soft rounded-2xl px-4 py-4 border border-slate-200/10 flex items-center justify-between active:scale-[.99] transition">
@@ -360,7 +347,8 @@
       </div>
 
       <div class="px-5 py-4 border-t border-slate-200/10 flex gap-3">
-        <button id="btnLogin" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition">
+        <button id="btnLogin" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 active:scale-[.99] transition"
+          style="--glow: rgba(34,197,94,.45); --glow2: rgba(34,197,94,.20);">
           Přihlásit
         </button>
         <button id="btnResetPass" class="flex-1 rounded-2xl py-3 font-black tracking-widest bg-slate-950/35 border border-slate-200/10 active:scale-[.99] transition">
@@ -390,24 +378,21 @@
 
   const elStatusText = document.getElementById("statusText");
   const elSyncDot = document.getElementById("syncDot");
-  const elGpsDot = document.getElementById("gpsDot");
-const elOnlineDot = document.getElementById("onlineDot");
   const elSyncText = document.getElementById("syncText");
 
-  const elActivity = document.getElementById("activity");
-
-  const elActivityCount = document.getElementById("activityCount");
-const elActivityList = document.getElementById("activityList");
-const btnActivityToggle = document.getElementById("activityToggle");
-const elActivityArrow = document.getElementById("activityArrow");
-const elActivityHint = document.getElementById("activityHint");
+  const elGpsDot = document.getElementById("gpsDot");
+  const elOnlineDot = document.getElementById("onlineDot");
 
   const btnShiftStart = document.getElementById("btnShiftStart");
   const btnShiftEnd = document.getElementById("btnShiftEnd");
-  const btnStoreIn = document.getElementById("btnStoreIn");
-  const btnStoreOut = document.getElementById("btnStoreOut");
+
+  const btnHomeOffice = document.getElementById("btnHomeOffice");
+  const btnVacationMain = document.getElementById("btnVacationMain");
+  const btnSickMain = document.getElementById("btnSickMain");
+  const btnTrainingMain = document.getElementById("btnTrainingMain");
+
+  // export moved to drawer
   const btnExport = document.getElementById("btnExport");
-  const inpStore = document.getElementById("storeName");
   const monthPick = document.getElementById("monthPick");
 
   // confirm modal
@@ -420,9 +405,6 @@ const elActivityHint = document.getElementById("activityHint");
   const btnHamb = document.getElementById("btnHamb");
   const drawerBack = document.getElementById("drawerBack");
   const drawerClose = document.getElementById("drawerClose");
-  const btnTraining = document.getElementById("btnTraining");
-  const btnSick = document.getElementById("btnSick");
-  const btnVacation = document.getElementById("btnVacation");
   const btnAccount = document.getElementById("btnAccount");
   const accountLabel = document.getElementById("accountLabel");
   const accountChip = document.getElementById("accountChip");
@@ -445,11 +427,19 @@ const elActivityHint = document.getElementById("activityHint");
   const btnLoginLater = document.getElementById("btnLoginLater");
   const btnResetPass = document.getElementById("btnResetPass");
 
+  // activity collapsible
+  const elActivityCount = document.getElementById("activityCount");
+  const elActivityList = document.getElementById("activityList");
+  const btnActivityToggle = document.getElementById("activityToggle");
+  const elActivityArrow = document.getElementById("activityArrow");
+  const elActivityHint = document.getElementById("activityHint");
+
+  let activityExpanded = false;
+
   /******************************************************************
    * 2) HELPERS
    ******************************************************************/
   const pad2 = (n) => String(n).padStart(2, "0");
-  let activityExpanded = false;
 
   function fmtDate(ts){
     const d = new Date(ts);
@@ -460,7 +450,6 @@ const elActivityHint = document.getElementById("activityHint");
     return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
   }
   function fmtDateTime(ts){ return `${fmtDate(ts)} ${fmtTime(ts)}`; }
-
   function todayKey(){ return fmtDate(Date.now()); }
 
   function minutesDiff(aTs, bTs){
@@ -474,7 +463,6 @@ const elActivityHint = document.getElementById("activityHint");
     const m = min%60;
     return `${h} h ${pad2(m)} m`;
   }
-
   function escapeHtml(s){
     return String(s ?? "")
       .replaceAll("&","&amp;")
@@ -492,7 +480,10 @@ const elActivityHint = document.getElementById("activityHint");
     const mi = pad2(d.getMinutes());
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
   }
-
+  function dateOnlyValue(ts){
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  }
   function monthKeyDefault(){
     const d = new Date();
     return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
@@ -509,50 +500,50 @@ const elActivityHint = document.getElementById("activityHint");
     if(state === "bad") elSyncDot.classList.add("bad");
     elSyncText.textContent = text;
   }
-let lastGpsOk = null; // null = zatím nezkoušeno, true/false = poslední pokus
 
-function setLed(el, ok){
-  if(!el) return;
-  // ok: true -> green, false -> red, null -> amber
-  el.classList.remove("bg-emerald-400","bg-rose-400","bg-amber-300");
-  el.style.boxShadow = "";
-
-  if(ok === true){
-    el.classList.add("bg-emerald-400");
-    el.style.boxShadow = "0 0 14px rgba(34,197,94,.45)";
-  }else if(ok === false){
-    el.classList.add("bg-rose-400");
-    el.style.boxShadow = "0 0 14px rgba(244,63,94,.35)";
-  }else{
-    el.classList.add("bg-amber-300");
-    el.style.boxShadow = "0 0 14px rgba(245,158,11,.35)";
-  }
-}
-
-async function updateLeds(){
-  // ONLINE
-  setLed(elOnlineDot, navigator.onLine);
-
-  // AUTH (přihlášený?)
-  try{
-    const u = await getUser();
-    setLed(elSyncDot, !!u);
-  }catch{
-    setLed(elSyncDot, false);
-  }
-
-  // GPS (poslední výsledek)
-  setLed(elGpsDot, lastGpsOk);
-}
-  
   function lockUI(lock){
     btnShiftStart.disabled = lock;
     btnShiftEnd.disabled = lock;
-    btnStoreIn.disabled = lock;
-    btnStoreOut.disabled = lock;
+    btnHomeOffice.disabled = lock;
+    btnVacationMain.disabled = lock;
+    btnSickMain.disabled = lock;
+    btnTrainingMain.disabled = lock;
     btnExport.disabled = lock;
-    inpStore.disabled = lock;
     monthPick.disabled = lock;
+  }
+
+  // LED helpers
+  let lastGpsOk = null; // null=nezjištěno
+  function setLed(el, ok){
+    if(!el) return;
+    el.classList.remove("bg-emerald-400","bg-rose-400","bg-amber-300");
+    el.style.boxShadow = "";
+    if(ok === true){
+      el.classList.add("bg-emerald-400");
+      el.style.boxShadow = "0 0 14px rgba(34,197,94,.45)";
+    }else if(ok === false){
+      el.classList.add("bg-rose-400");
+      el.style.boxShadow = "0 0 14px rgba(244,63,94,.35)";
+    }else{
+      el.classList.add("bg-amber-300");
+      el.style.boxShadow = "0 0 14px rgba(245,158,11,.35)";
+    }
+  }
+
+  async function updateLeds(){
+    setLed(elOnlineDot, navigator.onLine);
+    try{
+      const u = await getUser();
+      setLed(elSyncDot, !!u);
+    }catch{
+      setLed(elSyncDot, false);
+    }
+    setLed(elGpsDot, lastGpsOk);
+  }
+
+  function setPulse(btn, active){
+    if(!btn) return;
+    btn.classList.toggle("pulse-active", !!active);
   }
 
   /******************************************************************
@@ -563,12 +554,10 @@ async function updateLeds(){
       modalMsg.textContent = message;
       modalBack.style.display = "flex";
       modalBack.setAttribute("aria-hidden","false");
-      modalBack.style.zIndex = "10000";
 
       const cleanup = () => {
         modalBack.style.display = "none";
         modalBack.setAttribute("aria-hidden","true");
-        modalBack.style.zIndex = "";
         modalYes.onclick = null;
         modalNo.onclick = null;
         modalBack.onclick = null;
@@ -604,7 +593,6 @@ async function updateLeds(){
 
     formBack.style.display = "flex";
     formBack.setAttribute("aria-hidden","false");
-
     formBack.onclick = (e) => { if(e.target === formBack) closeForm(); };
   }
   function closeForm(){
@@ -647,7 +635,7 @@ async function updateLeds(){
     const ts = Date.now();
     const geo = await getGeo();
     lastGpsOk = !!geo.ok;
-updateLeds().catch(()=>{});
+    updateLeds().catch(()=>{});
     return {
       ts,
       lat: geo.ok ? geo.lat : null,
@@ -658,13 +646,6 @@ updateLeds().catch(()=>{});
     };
   }
 
-  function gpsText(p){
-    const has = (p?.lat != null && p?.lon != null);
-    if(!has) return "bez GPS";
-    const acc = (p.acc != null) ? `±${Math.round(p.acc)}m` : "±?";
-    return `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)} (${acc})`;
-  }
-
   /******************************************************************
    * 5) AUTH (Supabase)
    ******************************************************************/
@@ -673,17 +654,14 @@ updateLeds().catch(()=>{});
     if(error) throw error;
     return data;
   }
-
   async function signOut(){
     const { error } = await supabase.auth.signOut();
     if(error) throw error;
   }
-
   async function getUser(){
     const { data } = await supabase.auth.getUser();
     return data?.user || null;
   }
-
   async function ensureAuthUI(){
     const user = await getUser();
     if(user){
@@ -729,7 +707,7 @@ updateLeds().catch(()=>{});
     return (crypto?.randomUUID ? crypto.randomUUID() : (Date.now()+"_"+Math.random().toString(16).slice(2)));
   }
 
-  function buildEventRow({kind, ts, session_id=null, store_name=null, lat=null, lon=null, acc=null, payload={}}){
+  function buildEventRow({kind, ts, session_id=null, payload={}}){
     const iso = new Date(ts).toISOString();
     const day = iso.slice(0,10);
     return {
@@ -738,8 +716,8 @@ updateLeds().catch(()=>{});
       ts: iso,
       day,
       session_id,
-      store_name,
-      lat, lon, acc,
+      store_name: null,
+      lat: null, lon: null, acc: null,
       payload
     };
   }
@@ -755,10 +733,10 @@ updateLeds().catch(()=>{});
       ts: row.ts,
       day: row.day,
       session_id: row.session_id,
-      store_name: row.store_name,
-      lat: row.lat,
-      lon: row.lon,
-      acc: row.acc,
+      store_name: null,
+      lat: row.lat ?? null,
+      lon: row.lon ?? null,
+      acc: row.acc ?? null,
       payload: row.payload || {}
     };
 
@@ -809,7 +787,7 @@ updateLeds().catch(()=>{});
       try{
         await pushEventToSupabase(row);
         sent++;
-      }catch(e){
+      }catch{
         remaining.push(row);
       }
     }
@@ -819,7 +797,7 @@ updateLeds().catch(()=>{});
   }
 
   /******************************************************************
-   * 7) FETCH Z CLOUDU
+   * 7) FETCH Z CLOUDU (pro export)
    ******************************************************************/
   async function fetchMonthEvents(year, month1to12){
     const user = await getUser();
@@ -839,26 +817,8 @@ updateLeds().catch(()=>{});
     return data || [];
   }
 
-  async function fetchTodayEvents(){
-    const user = await getUser();
-    if(!user) return [];
-    const dk = todayKey();
-    const from = new Date(dk + "T00:00:00").toISOString();
-    const to = new Date(dk + "T23:59:59.999").toISOString();
-
-    const { data, error } = await supabase
-      .from("attendance_events")
-      .select("*")
-      .gte("ts", from)
-      .lte("ts", to)
-      .order("ts", { ascending: true });
-
-    if(error) throw error;
-    return data || [];
-  }
-
   /******************************************************************
-   * 8) DOMÉNOVÁ LOGIKA
+   * 8) DOMAIN LOGIC (only shift + day types)
    ******************************************************************/
   function normalizeRow(r){
     return {
@@ -867,18 +827,28 @@ updateLeds().catch(()=>{});
       ts: (typeof r.ts === "string") ? r.ts : new Date(r.ts).toISOString(),
       day: r.day || (typeof r.ts === "string" ? r.ts.slice(0,10) : fmtDate(r.ts)),
       session_id: r.session_id || null,
-      store_name: r.store_name || null,
-      lat: (r.lat ?? r.latitude ?? null),
-      lon: (r.lon ?? r.longitude ?? null),
-      acc: (r.acc ?? r.accuracy ?? null),
       payload: r.payload || {}
     };
   }
 
-  function deriveTodayStateFromEvents(rows){
+  function parseRangeFromPayload(e){
+    const s = e.payload?.start_ts ? Date.parse(e.payload.start_ts) : null;
+    const en = e.payload?.end_ts ? Date.parse(e.payload.end_ts) : null;
+    return { startTs: Number.isFinite(s) ? s : null, endTs: Number.isFinite(en) ? en : null };
+  }
+
+  function isNowInRange(e){
+    const now = Date.now();
+    const { startTs, endTs } = parseRangeFromPayload(e);
+    if(startTs == null || endTs == null) return false;
+    return now >= startTs && now <= endTs;
+  }
+
+  function deriveTodayState(rows){
     const events = rows.map(normalizeRow).filter(r => r.day === todayKey()).sort((a,b)=>a.ts.localeCompare(b.ts));
 
     const sessions = new Map();
+    const homeOffice = [];
     const trainings = [];
     const sickness = [];
     let vacation = false;
@@ -886,30 +856,14 @@ updateLeds().catch(()=>{});
     for(const e of events){
       if(e.kind === "SHIFT_START"){
         const sid = e.session_id || uuid();
-        if(!sessions.has(sid)) sessions.set(sid, { session_id: sid, start: e, end: null, visits: [] });
+        if(!sessions.has(sid)) sessions.set(sid, { session_id: sid, start: e, end: null });
       }
       if(e.kind === "SHIFT_END"){
         const sid = e.session_id;
         if(sid && sessions.has(sid)) sessions.get(sid).end = e;
       }
-      if(e.kind === "STORE_IN"){
-        const sid = e.session_id;
-        const vid = e.payload?.visit_id || uuid();
-        const rec = { visit_id: vid, store_name: e.store_name || e.payload?.store_name || "", in: e, out: null };
-        if(sid){
-          if(!sessions.has(sid)) sessions.set(sid, { session_id: sid, start: null, end: null, visits: [] });
-          sessions.get(sid).visits.push(rec);
-        }
-      }
-      if(e.kind === "STORE_OUT"){
-        const sid = e.session_id;
-        const vid = e.payload?.visit_id;
-        if(sid && vid && sessions.has(sid)){
-          const s = sessions.get(sid);
-          const v = [...s.visits].reverse().find(x => x.visit_id === vid && !x.out);
-          if(v) v.out = e;
-        }
-      }
+
+      if(e.kind === "HOME_OFFICE") homeOffice.push(e);
       if(e.kind === "TRAINING") trainings.push(e);
       if(e.kind === "SICK") sickness.push(e);
       if(e.kind === "VACATION") vacation = true;
@@ -922,22 +876,18 @@ updateLeds().catch(()=>{});
     });
 
     const activeSession = [...sessArr].reverse().find(s => s.start && !s.end) || null;
-    let activeVisit = null;
-    if(activeSession){
-      activeVisit = [...activeSession.visits].reverse().find(v => v.in && !v.out) || null;
-    }
 
-    return { events, sessions: sessArr, activeSession, activeVisit, trainings, sickness, vacation };
+    return { events, sessions: sessArr, activeSession, homeOffice, trainings, sickness, vacation };
   }
 
   /******************************************************************
-   * 9) AKCE (logování)
+   * 9) ACTIONS
    ******************************************************************/
   async function startShift(){
     const ok = await confirmAction("Přejete si potvrdit příchod do práce?");
     if(!ok) return;
 
-    const st = deriveTodayStateFromEvents(cacheLoad());
+    const st = deriveTodayState(cacheLoad());
     if(st.activeSession){
       setStatus("směna už běží (nejdřív dej odchod).");
       render();
@@ -954,14 +904,14 @@ updateLeds().catch(()=>{});
       kind: "SHIFT_START",
       ts: p.ts,
       session_id,
-      lat: p.lat, lon: p.lon, acc: p.acc,
-      payload: { app_version: "supabase_v1" }
+      payload: { app_version: "supabase_v2_neon" }
     });
+    row.lat = p.lat; row.lon = p.lon; row.acc = p.acc;
 
     try{
       await queueAndTrySend(row);
       setStatus(p.geoOk ? "příchod uložen ✅ (s GPS)" : `příchod uložen ✅ (bez GPS: ${p.geoErr})`);
-    }catch(e){
+    }catch{
       setStatus("uloženo offline do fronty ✅");
     }finally{
       lockUI(false);
@@ -973,15 +923,11 @@ updateLeds().catch(()=>{});
     const ok = await confirmAction("Přejete si potvrdit odchod z práce?");
     if(!ok) return;
 
-    const st = deriveTodayStateFromEvents(cacheLoad());
+    const st = deriveTodayState(cacheLoad());
     const s = st.activeSession;
     if(!s){
       setStatus("žádná směna neběží.");
       render();
-      return;
-    }
-    if(st.activeVisit){
-      alert("Nejdřív ukonči návštěvu prodejny (odchod z prodejny).");
       return;
     }
 
@@ -994,15 +940,15 @@ updateLeds().catch(()=>{});
       kind: "SHIFT_END",
       ts: p.ts,
       session_id: s.session_id,
-      lat: p.lat, lon: p.lon, acc: p.acc,
-      payload: { app_version: "supabase_v1" }
+      payload: { app_version: "supabase_v2_neon" }
     });
+    row.lat = p.lat; row.lon = p.lon; row.acc = p.acc;
 
     try{
       await queueAndTrySend(row);
       const workMin = minutesDiff(Date.parse(s.start.ts), p.ts);
       setStatus(p.geoOk ? `odchod uložen ✅ (celkem ${hm(workMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
-    }catch(e){
+    }catch{
       setStatus("uloženo offline do fronty ✅");
     }finally{
       lockUI(false);
@@ -1010,276 +956,133 @@ updateLeds().catch(()=>{});
     }
   }
 
-  async function storeIn(){
-    const name = (inpStore.value || "").trim();
-    if(!name){
-      alert("Zadej název prodejny.");
-      inpStore.focus();
-      return;
-    }
-
-    const st = deriveTodayStateFromEvents(cacheLoad());
-    const s = st.activeSession;
-    if(!s){
-      alert("Nejdřív zahaj směnu (Příchod).");
-      return;
-    }
-    if(st.activeVisit){
-      alert("Už máš aktivní návštěvu. Nejdřív dej odchod z prodejny.");
-      return;
-    }
-
-    const ok = await confirmAction(`Přejete si potvrdit VSTUP na prodejnu?\n\nProdejna: ${name}`);
-    if(!ok) return;
-
-    lockUI(true);
-    setStatus("ukládám vstup na prodejnu…");
-
-    const p = await capturePoint();
-    const visit_id = uuid();
-
-    const row = buildEventRow({
-      kind: "STORE_IN",
-      ts: p.ts,
-      session_id: s.session_id,
-      store_name: name,
-      lat: p.lat, lon: p.lon, acc: p.acc,
-      payload: { visit_id, store_name: name }
-    });
-
-    try{
-      await queueAndTrySend(row);
-      setStatus(p.geoOk ? "vstup uložen ✅ (s GPS)" : `vstup uložen ✅ (bez GPS: ${p.geoErr})`);
-    }catch(e){
-      setStatus("uloženo offline do fronty ✅");
-    }finally{
-      lockUI(false);
-      render();
-    }
-  }
-
-  async function storeOut(){
-    const st = deriveTodayStateFromEvents(cacheLoad());
-    const s = st.activeSession;
-    const v = st.activeVisit;
-
-    if(!s){
-      alert("Nejdřív zahaj směnu (Příchod).");
-      return;
-    }
-    if(!v){
-      alert("Žádná aktivní návštěva není otevřená.");
-      return;
-    }
-
-    const storeName = v.store_name || v.in.store_name || "(bez názvu)";
-    const ok = await confirmAction(`Přejete si potvrdit ODCHOD z prodejny?\n\nProdejna: ${storeName}`);
-    if(!ok) return;
-
-    lockUI(true);
-    setStatus("ukládám odchod z prodejny…");
-
-    const p = await capturePoint();
-
-    const row = buildEventRow({
-      kind: "STORE_OUT",
-      ts: p.ts,
-      session_id: s.session_id,
-      store_name: storeName,
-      lat: p.lat, lon: p.lon, acc: p.acc,
-      payload: { visit_id: v.visit_id, store_name: storeName }
-    });
-
-    try{
-      await queueAndTrySend(row);
-      const vMin = minutesDiff(Date.parse(v.in.ts), p.ts);
-      setStatus(p.geoOk ? `odchod uložen ✅ (návštěva ${hm(vMin)})` : `odchod uložen ✅ (bez GPS: ${p.geoErr})`);
-    }catch(e){
-      setStatus("uloženo offline do fronty ✅");
-    }finally{
-      lockUI(false);
-      render();
-    }
-  }
-
-  /******************************************************************
-   * 10) MENU FUNKCE
-   ******************************************************************/
-  function openTrainingForm(){
-    closeDrawer();
+  function openRangeForm({title, kind, colorClass, glowStyle, defaultHours, paidLabel}){
     const now = Date.now();
     const startDefault = dtLocalValue(now);
-    const endDefault = dtLocalValue(now + 60*60000);
+    const endDefault = dtLocalValue(now + defaultHours*60*60000);
 
     openForm({
-      title: "Školení (placené)",
+      title,
       bodyHtml: `
         <div class="space-y-3">
+          <div class="text-[12px] text-slate-300">${paidLabel}</div>
           <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Od</label>
           <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
-            type="datetime-local" id="trStart" value="${startDefault}">
+            type="datetime-local" id="rngStart" value="${startDefault}">
           <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Do</label>
           <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
-            type="datetime-local" id="trEnd" value="${endDefault}">
-          <div class="text-[11px] text-slate-400">Uloží se jako placené školení (event TRAINING).</div>
+            type="datetime-local" id="rngEnd" value="${endDefault}">
+          <div class="text-[11px] text-slate-400">Uloží se do logu jako ${kind}.</div>
         </div>
       `,
       buttons: [
-        { text:"Uložit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition",
-          onClick: async () => {
-            const ok = await confirmAction("Potvrdit uložení školení?");
-            if(!ok) return;
+        { text:"Uložit", cls:`flex-1 rounded-2xl py-3 font-black tracking-widest ${colorClass} border border-white/10 active:scale-[.99] transition`, onClick: async () => {
+          const ok = await confirmAction(`Potvrdit uložení: ${title}?`);
+          if(!ok) return;
 
-            const s = $id("trStart").value;
-            const e = $id("trEnd").value;
-            const startTs = Date.parse(s);
-            const endTs = Date.parse(e);
+          const sVal = $id("rngStart").value;
+          const eVal = $id("rngEnd").value;
+          const startTs = Date.parse(sVal);
+          const endTs = Date.parse(eVal);
 
-            if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
-              alert("Neplatný časový rozsah.");
-              return;
-            }
-
-            const minutes = minutesDiff(startTs, endTs) ?? 0;
-            const row = buildEventRow({
-              kind: "TRAINING",
-              ts: startTs,
-              payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
-            });
-
-            lockUI(true);
-            try{
-              await queueAndTrySend(row);
-              setStatus("školení uloženo ✅");
-            }catch{
-              setStatus("školení uloženo offline do fronty ✅");
-            }finally{
-              lockUI(false);
-              closeForm();
-              render();
-            }
+          if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
+            alert("Neplatný časový rozsah.");
+            return;
           }
-        },
-        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition",
-          onClick: async () => closeForm()
-        }
-      ]
-    });
-  }
 
-  function openSickForm(){
-    closeDrawer();
-    const now = Date.now();
-    const startDefault = dtLocalValue(now);
-    const endDefault = dtLocalValue(now + 8*60*60000);
+          const minutes = minutesDiff(startTs, endTs) ?? 0;
 
-    openForm({
-      title: "Nemoc (neplacená)",
-      bodyHtml: `
-        <div class="space-y-3">
-          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Od</label>
-          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
-            type="datetime-local" id="siStart" value="${startDefault}">
-          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Do</label>
-          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
-            type="datetime-local" id="siEnd" value="${endDefault}">
-          <div class="text-[11px] text-slate-400">Uloží se jako event SICK (neplacené).</div>
-        </div>
-      `,
-      buttons: [
-        { text:"Uložit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition",
-          onClick: async () => {
-            const ok = await confirmAction("Potvrdit uložení nemoci?");
-            if(!ok) return;
-
-            const s = $id("siStart").value;
-            const e = $id("siEnd").value;
-            const startTs = Date.parse(s);
-            const endTs = Date.parse(e);
-
-            if(!Number.isFinite(startTs) || !Number.isFinite(endTs) || endTs <= startTs){
-              alert("Neplatný časový rozsah.");
-              return;
-            }
-
-            const minutes = minutesDiff(startTs, endTs) ?? 0;
+          lockUI(true);
+          try{
             const row = buildEventRow({
-              kind: "SICK",
+              kind,
               ts: startTs,
-              payload: { start_ts: new Date(startTs).toISOString(), end_ts: new Date(endTs).toISOString(), minutes }
+              payload: {
+                start_ts: new Date(startTs).toISOString(),
+                end_ts: new Date(endTs).toISOString(),
+                minutes
+              }
             });
-
-            lockUI(true);
-            try{
-              await queueAndTrySend(row);
-              setStatus("nemoc uložena ✅");
-            }catch{
-              setStatus("nemoc uložena offline do fronty ✅");
-            }finally{
-              lockUI(false);
-              closeForm();
-              render();
-            }
+            await queueAndTrySend(row);
+            setStatus(`${title} uloženo ✅`);
+          }catch{
+            setStatus(`${title} uloženo offline do fronty ✅`);
+          }finally{
+            lockUI(false);
+            closeForm();
+            render();
           }
-        },
-        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition",
-          onClick: async () => closeForm()
-        }
+        }},
+        { text:"Zrušit", cls:`flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 active:scale-[.99] transition`, onClick: async () => closeForm() }
       ]
     });
   }
 
   function openVacationForm(){
-    closeDrawer();
     const dk = todayKey();
-
     openForm({
       title: "Dovolená",
       bodyHtml: `
         <div class="space-y-3">
-          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Vyber den</label>
+          <div class="text-[12px] text-slate-300">Vyber den nebo rozsah (pro každý den se uloží 8 hodin).</div>
+
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Od (datum)</label>
           <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
-            type="date" id="vacDay" value="${dk}">
-          <div class="text-[11px] text-slate-400">Přidá se event VACATION (8 hodin v reportu).</div>
+            type="date" id="vacFrom" value="${dk}">
+
+          <label class="block text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">Do (datum)</label>
+          <input class="w-full rounded-2xl px-4 py-4 bg-slate-950/35 border border-slate-400/15 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/35 focus:border-indigo-300/25"
+            type="date" id="vacTo" value="${dk}">
+
+          <div class="text-[11px] text-slate-400">Tip: pro jeden den nech stejné Od i Do.</div>
         </div>
       `,
       buttons: [
-        { text:"Přidat", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-emerald-500/20 border border-emerald-300/20 btn-glow-green active:scale-[.99] transition",
-          onClick: async () => {
-            const day = $id("vacDay").value;
-            if(!day){ alert("Vyber den."); return; }
-            const ok = await confirmAction(`Přidat dovolenou pro den ${day}?`);
-            if(!ok) return;
+        { text:"Uložit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-sky-500/18 border border-sky-300/20 active:scale-[.99] transition", onClick: async () => {
+          const from = $id("vacFrom").value;
+          const to = $id("vacTo").value;
+          if(!from || !to){ alert("Vyber datum od/do."); return; }
 
-            const ts = Date.parse(day + "T00:00:00");
-            const row = buildEventRow({
-              kind: "VACATION",
-              ts,
-              payload: { day, minutes: 480 }
-            });
+          const ok = await confirmAction(`Přidat dovolenou od ${from} do ${to}?`);
+          if(!ok) return;
 
-            lockUI(true);
-            try{
-              await queueAndTrySend(row);
-              setStatus("dovolená uložena ✅");
-            }catch{
-              setStatus("dovolená uložena offline do fronty ✅");
-            }finally{
-              lockUI(false);
-              closeForm();
-              render();
-            }
+          const start = Date.parse(from + "T00:00:00");
+          const end = Date.parse(to + "T00:00:00");
+          if(!Number.isFinite(start) || !Number.isFinite(end) || end < start){
+            alert("Neplatný rozsah.");
+            return;
           }
-        },
-        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 btn-glow-red active:scale-[.99] transition",
-          onClick: async () => closeForm()
-        }
+
+          lockUI(true);
+          try{
+            // create one event per day
+            const dayCount = Math.round((end - start) / (24*60*60000)) + 1;
+            for(let i=0;i<dayCount;i++){
+              const ts = start + i*24*60*60000;
+              const day = dateOnlyValue(ts);
+              const row = buildEventRow({
+                kind: "VACATION",
+                ts,
+                payload: { day, minutes: 480 }
+              });
+              await queueAndTrySend(row);
+            }
+            setStatus("dovolená uložena ✅");
+          }catch{
+            setStatus("dovolená uložena offline do fronty ✅");
+          }finally{
+            lockUI(false);
+            closeForm();
+            render();
+          }
+        }},
+        { text:"Zrušit", cls:"flex-1 rounded-2xl py-3 font-black tracking-widest bg-rose-500/18 border border-rose-300/20 active:scale-[.99] transition", onClick: async () => closeForm() }
       ]
     });
   }
 
   /******************************************************************
-   * 11) EXPORT (CSV)
+   * 10) EXPORT (CSV)
    ******************************************************************/
   function parseMonthValue(v){
     if(!v) return null;
@@ -1310,10 +1113,10 @@ updateLeds().catch(()=>{});
 
   function computeDayTotals(dayRows){
     const sessions = new Map();
+    let homeOfficeMin = 0;
     let trainingMin = 0;
     let sickMin = 0;
     let vacationMin = 0;
-    let visits = 0;
 
     for(const e of dayRows){
       if(e.kind === "SHIFT_START"){
@@ -1327,7 +1130,7 @@ updateLeds().catch(()=>{});
           else sessions.get(sid).end = e;
         }
       }
-      if(e.kind === "STORE_IN") visits++;
+      if(e.kind === "HOME_OFFICE") homeOfficeMin += (e.payload?.minutes ?? 0);
       if(e.kind === "TRAINING") trainingMin += (e.payload?.minutes ?? 0);
       if(e.kind === "SICK") sickMin += (e.payload?.minutes ?? 0);
       if(e.kind === "VACATION") vacationMin = 480;
@@ -1341,8 +1144,8 @@ updateLeds().catch(()=>{});
       }
     }
 
-    const paidMin = workMin + trainingMin + vacationMin;
-    return { workMin, trainingMin, sickMin, vacationMin, paidMin, visits };
+    const paidMin = workMin + trainingMin + homeOfficeMin + vacationMin;
+    return { workMin, homeOfficeMin, trainingMin, sickMin, vacationMin, paidMin };
   }
 
   async function exportCsv(){
@@ -1374,10 +1177,8 @@ updateLeds().catch(()=>{});
     const sep = ",";
     const head = [
       "row_type","date",
-      "work_minutes","training_minutes","vacation_minutes","sick_minutes","paid_minutes",
-      "visit_count",
-      "kind","ts","session_id","store_name",
-      "lat","lon","acc",
+      "work_minutes","home_office_minutes","training_minutes","vacation_minutes","sick_minutes","paid_minutes",
+      "kind","ts","session_id",
       "payload_json"
     ];
     const lines = [head.join(sep)];
@@ -1389,9 +1190,7 @@ updateLeds().catch(()=>{});
 
       lines.push([
         "DAY_TOTAL", day,
-        t.workMin, t.trainingMin, t.vacationMin, t.sickMin, t.paidMin,
-        t.visits,
-        "", "", "", "",
+        t.workMin, t.homeOfficeMin, t.trainingMin, t.vacationMin, t.sickMin, t.paidMin,
         "", "", "",
         ""
       ].map(x=>csvEscape(x, sep)).join(sep));
@@ -1399,10 +1198,8 @@ updateLeds().catch(()=>{});
       for(const e of dayRows){
         lines.push([
           "EVENT", day,
-          "", "", "", "", "",
-          "",
-          e.kind, e.ts, e.session_id || "", e.store_name || "",
-          e.lat ?? "", e.lon ?? "", e.acc ?? "",
+          "", "", "", "", "", "",
+          e.kind, e.ts, e.session_id || "",
           JSON.stringify(e.payload || {})
         ].map(x=>csvEscape(x, sep)).join(sep));
       }
@@ -1426,7 +1223,7 @@ updateLeds().catch(()=>{});
   }
 
   /******************************************************************
-   * 12) RENDER
+   * 11) RENDER
    ******************************************************************/
   function updateNow(){
     const d = new Date();
@@ -1443,43 +1240,40 @@ updateLeds().catch(()=>{});
       setSyncBadge({state: ob.length ? "warn" : "ok", text: ob.length ? `čeká: ${ob.length}` : "sync: ok"});
     }
 
-    const st = deriveTodayStateFromEvents(cacheLoad());
+    const st = deriveTodayState(cacheLoad());
 
     if(!st.activeSession) elPill.textContent = "MIMO PRACOVNÍ DOBU";
-    else if(st.activeSession && st.activeVisit) elPill.textContent = "NA PRODEJNĚ";
     else elPill.textContent = "VE SMĚNĚ";
 
+    // shift buttons
     btnShiftStart.disabled = !!st.activeSession;
     btnShiftEnd.disabled = !st.activeSession;
 
-    btnStoreIn.disabled = !st.activeSession || !!st.activeVisit;
-    btnStoreOut.disabled = !st.activeSession || !st.activeVisit;
+    // active “day type” buttons (pulse when active)
+    const hoActive = st.homeOffice.some(isNowInRange);
+    const trActive = st.trainings.some(isNowInRange);
+    const siActive = st.sickness.some(isNowInRange);
+    const vaActive = st.vacation === true;
+
+    setPulse(btnHomeOffice, hoActive);
+    setPulse(btnTrainingMain, trActive);
+    setPulse(btnSickMain, siActive);
+    setPulse(btnVacationMain, vaActive);
 
     if(!monthPick.value) monthPick.value = monthKeyDefault();
 
+    // build items list
     const items = [];
-
     for(let i=0; i<st.sessions.length; i++){
       const s = st.sessions[i];
       if(s.start){
         items.push({
           tag:`SMĚNA #${i+1}`,
           title:"Příchod",
-          sub:`${fmtDateTime(Date.parse(s.start.ts))} • GPS: ${gpsText(s.start)}`
+          sub:`${fmtDateTime(Date.parse(s.start.ts))}`
         });
       }
-      for(let j=0; j<s.visits.length; j++){
-        const v = s.visits[j];
-        const inTs = Date.parse(v.in.ts);
-        const outTs = v.out ? Date.parse(v.out.ts) : null;
-        const dur = outTs ? hm(minutesDiff(inTs, outTs)) : "probíhá…";
-        items.push({
-          tag:`PRODEJNA ${i+1}.${j+1}`,
-          title: v.store_name || "(bez názvu)",
-          sub:`${fmtDateTime(inTs)} → ${outTs ? fmtDateTime(outTs) : "—"} • ${dur}`
-        });
-      }
-      if(s.end){
+      if(s.end && s.start){
         const w = minutesDiff(Date.parse(s.start.ts), Date.parse(s.end.ts));
         items.push({
           tag:`SMĚNA #${i+1}`,
@@ -1495,66 +1289,76 @@ updateLeds().catch(()=>{});
       }
     }
 
+    for(const e of st.homeOffice){
+      const { startTs, endTs } = parseRangeFromPayload(e);
+      items.push({
+        tag:"HOME OFFICE",
+        title:"Home Office",
+        sub:`${startTs ? fmtDateTime(startTs) : e.ts} → ${endTs ? fmtDateTime(endTs) : ""} • ${hm(e.payload?.minutes || 0)}`
+      });
+    }
     for(const e of st.trainings){
+      const { startTs, endTs } = parseRangeFromPayload(e);
       items.push({
         tag:"ŠKOLENÍ",
         title:"Školení (placené)",
-        sub:`${e.payload?.start_ts || e.ts} → ${e.payload?.end_ts || ""} • ${hm(e.payload?.minutes || 0)}`
+        sub:`${startTs ? fmtDateTime(startTs) : e.ts} → ${endTs ? fmtDateTime(endTs) : ""} • ${hm(e.payload?.minutes || 0)}`
       });
     }
     for(const e of st.sickness){
+      const { startTs, endTs } = parseRangeFromPayload(e);
       items.push({
         tag:"NEMOC",
         title:"Nemoc (neplacená)",
-        sub:`${e.payload?.start_ts || e.ts} → ${e.payload?.end_ts || ""} • ${hm(e.payload?.minutes || 0)}`
+        sub:`${startTs ? fmtDateTime(startTs) : e.ts} → ${endTs ? fmtDateTime(endTs) : ""} • ${hm(e.payload?.minutes || 0)}`
       });
     }
     if(st.vacation){
       items.push({ tag:"DOVOLENÁ", title:"Dovolená", sub:"Celý den (8 hodin)" });
     }
 
-    // --- Collapsible activity UI ---
-elActivityCount.textContent = String(items.length);
+    // Collapsible activity UI
+    elActivityCount.textContent = String(items.length);
 
-if(items.length === 0){
-  elActivityHint.textContent = "Zatím žádná aktivita";
-  elActivityArrow.style.transform = "rotate(0deg)";
-  elActivityList.classList.add("hidden");
-  elActivityList.innerHTML = `
-    <div class="mt-2 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10 text-slate-400 text-sm">
-      Zatím nic. Klikni na PŘÍCHOD.
-    </div>
-  `;
-} else {
-  elActivityHint.textContent = activityExpanded ? "Klikni pro sbalení" : "Klikni pro rozbalení detailu";
-  elActivityArrow.style.transform = activityExpanded ? "rotate(90deg)" : "rotate(0deg)";
-
-  if(!activityExpanded){
-    elActivityList.classList.add("hidden");
-    elActivityList.innerHTML = "";
-  } else {
-    elActivityList.classList.remove("hidden");
-    elActivityList.innerHTML = items.map(it => `
-      <div class="mt-3 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="text-sm font-black tracking-wide text-slate-100">${escapeHtml(it.title)}</div>
-            <div class="mt-1 text-[12px] text-slate-400 font-semibold whitespace-pre-wrap">${escapeHtml(it.sub)}</div>
-          </div>
-          <div class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-300/10 text-indigo-200 whitespace-nowrap">
-            ${escapeHtml(it.tag)}
-          </div>
+    if(items.length === 0){
+      elActivityHint.textContent = "Zatím žádná aktivita";
+      elActivityArrow.style.transform = "rotate(0deg)";
+      elActivityList.classList.add("hidden");
+      elActivityList.innerHTML = `
+        <div class="mt-2 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10 text-slate-400 text-sm">
+          Zatím nic. Klikni na PŘÍCHOD.
         </div>
-      </div>
-    `).join("");
-  }
-}
-     // ✅ SEM TO VLOŽ (po vykreslení aktivity, pořád uvnitř render())
+      `;
+    } else {
+      elActivityHint.textContent = activityExpanded ? "Klikni pro sbalení" : "Klikni pro rozbalení detailu";
+      elActivityArrow.style.transform = activityExpanded ? "rotate(90deg)" : "rotate(0deg)";
+
+      if(!activityExpanded){
+        elActivityList.classList.add("hidden");
+        elActivityList.innerHTML = "";
+      } else {
+        elActivityList.classList.remove("hidden");
+        elActivityList.innerHTML = items.map(it => `
+          <div class="mt-3 glass-soft rounded-2xl px-4 py-4 border border-slate-400/10">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-sm font-black tracking-wide text-slate-100">${escapeHtml(it.title)}</div>
+                <div class="mt-1 text-[12px] text-slate-400 font-semibold whitespace-pre-wrap">${escapeHtml(it.sub)}</div>
+              </div>
+              <div class="text-[11px] font-extrabold tracking-widest px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-300/10 text-indigo-200 whitespace-nowrap">
+                ${escapeHtml(it.tag)}
+              </div>
+            </div>
+          </div>
+        `).join("");
+      }
+    }
+
     updateLeds().catch(()=>{});
   }
 
   /******************************************************************
-   * 13) MENU / SERVIS AKCE
+   * 12) MENU / SERVIS AKCE
    ******************************************************************/
   async function handleAccountClick(){
     closeDrawer();
@@ -1595,12 +1399,12 @@ if(items.length === 0){
   }
 
   /******************************************************************
-   * 14) LOGIN HANDLERS
+   * 13) LOGIN HANDLERS
    ******************************************************************/
   btnLogin.addEventListener("click", async () => {
     loginMsg.classList.add("hidden");
     const email = (loginEmail.value || "").trim();
-    const pass = (loginPass.value || ""); // ✅ NEtrimovat heslo
+    const pass = (loginPass.value || ""); // ne-trimovat heslo
     if(!email || !pass){
       loginMsg.textContent = "Zadej email a heslo.";
       loginMsg.classList.remove("hidden");
@@ -1624,7 +1428,6 @@ if(items.length === 0){
 
   btnResetPass.addEventListener("click", async () => {
     loginMsg.classList.add("hidden");
-
     const email = (loginEmail.value || "").trim();
     if(!email){
       loginMsg.textContent = "Zadej email pro reset hesla.";
@@ -1638,7 +1441,6 @@ if(items.length === 0){
         redirectTo: "https://pavelsukup-netizen.github.io/dochazka/"
       });
       if(error) throw error;
-
       loginMsg.textContent = "Hotovo ✅ Koukej do emailu (Reset password) a klikni na odkaz.";
       loginMsg.classList.remove("hidden");
     }catch(e){
@@ -1649,92 +1451,86 @@ if(items.length === 0){
     }
   });
 
-  btnLoginLater.addEventListener("click", () => {
-    showLoginOverlay(false);
-  });
+  btnLoginLater.addEventListener("click", () => showLoginOverlay(false));
 
   /******************************************************************
-   * 15) WIRE-UP
+   * 14) WIRE-UP
    ******************************************************************/
   btnShiftStart.addEventListener("click", startShift);
   btnShiftEnd.addEventListener("click", endShift);
-  btnStoreIn.addEventListener("click", storeIn);
-  btnStoreOut.addEventListener("click", storeOut);
+
+  btnHomeOffice.addEventListener("click", async () => {
+    closeDrawer();
+    openRangeForm({
+      title: "Home Office",
+      kind: "HOME_OFFICE",
+      colorClass: "bg-amber-400/15",
+      glowStyle: "--glow: rgba(245,158,11,.55); --glow2: rgba(245,158,11,.20);",
+      defaultHours: 8,
+      paidLabel: "Placená práce z domova (od–do)"
+    });
+  });
+
+  btnTrainingMain.addEventListener("click", async () => {
+    closeDrawer();
+    openRangeForm({
+      title: "Školení (placené)",
+      kind: "TRAINING",
+      colorClass: "bg-pink-500/14",
+      glowStyle: "--glow: rgba(236,72,153,.55); --glow2: rgba(236,72,153,.20);",
+      defaultHours: 2,
+      paidLabel: "Placené školení (od–do)"
+    });
+  });
+
+  btnSickMain.addEventListener("click", async () => {
+    closeDrawer();
+    openRangeForm({
+      title: "Nemoc (neplacená)",
+      kind: "SICK",
+      colorClass: "bg-violet-500/14",
+      glowStyle: "--glow: rgba(167,139,250,.55); --glow2: rgba(167,139,250,.20);",
+      defaultHours: 8,
+      paidLabel: "Nemoc bez nároku na odměnu (od–do)"
+    });
+  });
+
+  btnVacationMain.addEventListener("click", async () => {
+    closeDrawer();
+    openVacationForm();
+  });
+
   btnExport.addEventListener("click", exportCsv);
 
   btnHamb.addEventListener("click", openDrawer);
   drawerClose.addEventListener("click", closeDrawer);
   drawerBack.addEventListener("click", (e) => { if(e.target === drawerBack) closeDrawer(); });
 
-  btnTraining.addEventListener("click", openTrainingForm);
-  btnSick.addEventListener("click", openSickForm);
-  btnVacation.addEventListener("click", openVacationForm);
-
   btnAccount.addEventListener("click", handleAccountClick);
   btnSyncNow.addEventListener("click", async () => { closeDrawer(); await syncOutbox(); render(); });
   btnClearToday.addEventListener("click", clearTodayLocal);
   btnClearAllLocal.addEventListener("click", clearAllLocal);
 
+  btnActivityToggle.addEventListener("click", () => { activityExpanded = !activityExpanded; render(); });
+
   window.addEventListener("online", () => { syncOutbox().catch(()=>{}); render(); });
   window.addEventListener("offline", () => { render(); });
 
   supabase.auth.onAuthStateChange((_event, _session) => {
-  ensureAuthUI().then(()=>{ 
-    render(); 
-    updateLeds().catch(()=>{});   // ✅ D3
-    syncOutbox().catch(()=>{}); 
+    ensureAuthUI().then(()=>{ render(); syncOutbox().catch(()=>{}); });
   });
-});
-   btnActivityToggle.addEventListener("click", () => {
-  activityExpanded = !activityExpanded;
-  render();
-});
 
   /******************************************************************
-   * 16) INIT
+   * 15) INIT
    ******************************************************************/
   (async () => {
-    if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){
-      setStatus("Doplň SUPABASE_URL a SUPABASE_ANON_KEY (zatím jen lokálně).");
-      setSyncBadge({state:"warn", text:"bez supabase"});
-    }else{
-      setSyncBadge({state: navigator.onLine ? "warn" : "bad", text: navigator.onLine ? "čekám na login" : "offline"});
-    }
-
     if(!monthPick.value) monthPick.value = monthKeyDefault();
     await ensureAuthUI();
-    
-// ✅ SEM VLOŽ (po načtení auth stavu)
-updateLeds().catch(()=>{});
-    
-    try{
-      const user = await getUser();
-      if(user && navigator.onLine){
-        const todayCloud = await fetchTodayEvents();
-        const cache = cacheLoad().map(normalizeRow);
-        const seen = new Set(cache.map(x => `${x.kind}|${x.ts}|${x.session_id||""}|${x.store_name||""}`));
-        for(const r of todayCloud){
-          const e = normalizeRow(r);
-          const key = `${e.kind}|${e.ts}|${e.session_id||""}|${e.store_name||""}`;
-          if(!seen.has(key)){
-            cache.push(e);
-            seen.add(key);
-          }
-        }
-        cacheSave(cache);
-      }
-    }catch{}
-
+    updateLeds().catch(()=>{});
     syncOutbox().catch(()=>{});
-
     render();
     setInterval(() => { updateNow(); }, 1000);
   })();
-
-  function updateNow(){
-    const d = new Date();
-    elNow.textContent = `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}  ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
-  }
 
 })();
 </script>
