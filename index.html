@@ -86,12 +86,14 @@
                 <path d="M20 22a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
               </svg>
             </div>
-            <div class="text-[11px] font-extrabold tracking-widest uppercase text-slate-300">MERCH</div>
+            <div id="userEmailTop" class="text-[10px] font-extrabold tracking-widest text-slate-300/90 max-w-[110px] truncate text-center">
+  nepřihlášen
+</div>
           </div>
 
           <!-- Center title -->
           <div class="flex-1 text-center pt-1">
-            <div class="text-xl font-black tracking-wide">MERCHANDISER LOG</div>
+            <div class="text-xl font-black tracking-wide">Docházka 2.0</div>
             <div class="mt-1 text-sm text-slate-300">
               <span id="nowText" class="font-semibold">--</span>
             </div>
@@ -167,22 +169,26 @@
         <button id="btnVacationMain"
           class="rounded-2xl py-5 text-sky-200 font-black tracking-widest bg-sky-500/15 border border-sky-300/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
           style="--glow: rgba(56,189,248,.55); --glow2: rgba(56,189,248,.20);">
-          DOVO<br><span class="text-[10px] opacity-80">LENÁ</span>
+          DOVOLENÁ<br>
         </button>
 
         <!-- Sick -->
         <button id="btnSickMain"
-          class="rounded-2xl py-5 text-violet-200 font-black tracking-widest bg-violet-500/14 border border-violet-300/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
-          style="--glow: rgba(167,139,250,.55); --glow2: rgba(167,139,250,.20);">
-          NEMOC
-        </button>
+  class="rounded-2xl py-5 text-violet-100 font-black tracking-widest
+         bg-violet-500/25 border border-violet-300/25
+         active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+  style="--glow: rgba(167,139,250,.65); --glow2: rgba(167,139,250,.25);">
+  NEMOC
+</button>
 
         <!-- Training -->
         <button id="btnTrainingMain"
-          class="rounded-2xl py-5 text-pink-200 font-black tracking-widest bg-pink-500/14 border border-pink-300/20 active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
-          style="--glow: rgba(236,72,153,.55); --glow2: rgba(236,72,153,.20);">
-          ŠKO<br><span class="text-[10px] opacity-80">LENÍ</span>
-        </button>
+  class="rounded-2xl py-5 text-pink-100 font-black tracking-widest
+         bg-pink-500/25 border border-pink-300/25
+         active:scale-[.99] transition disabled:opacity-40 disabled:cursor-not-allowed"
+  style="--glow: rgba(236,72,153,.65); --glow2: rgba(236,72,153,.25);">
+  ŠKOLENÍ
+</button>
       </div>
 
       <!-- Status (neon/glass) -->
@@ -375,6 +381,7 @@
    ******************************************************************/
   const elNow = document.getElementById("nowText");
   const elPill = document.getElementById("modePill");
+  const elUserEmailTop = document.getElementById("userEmailTop");
 
   const elStatusText = document.getElementById("statusText");
   const elSyncDot = document.getElementById("syncDot");
@@ -665,13 +672,15 @@
   async function ensureAuthUI(){
     const user = await getUser();
     if(user){
-      accountLabel.textContent = user.email || "Přihlášen";
-      accountChip.textContent = "logout";
-      showLoginOverlay(false);
-    }else{
-      accountLabel.textContent = "Nepřihlášen";
-      accountChip.textContent = "login";
-    }
+  accountLabel.textContent = user.email || "Přihlášen";
+  accountChip.textContent = "logout";
+  if(elUserEmailTop) elUserEmailTop.textContent = (user.email || "").toLowerCase();
+  showLoginOverlay(false);
+}else{
+  accountLabel.textContent = "Nepřihlášen";
+  accountChip.textContent = "login";
+  if(elUserEmailTop) elUserEmailTop.textContent = "nepřihlášen";
+}
     return user;
   }
 
